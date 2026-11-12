@@ -25,15 +25,40 @@ class ActivityController extends Controller
         $selectedDate = $request->input('date', Carbon::today()->toDateString());
         $carbonDate = Carbon::parse($selectedDate);
 
-        // All field agents
-        $allAgents = User::where('role', 'field_agent')
-            ->where('status', 'active')
-            ->orderBy('name')
-            ->get();
+        $currentUser = Auth::user();
+
+        // Scope queries based on role
+        if ($currentUser->isFieldAgent()) {
+            // Field agents strictly only see their own activities
+            $allAgents = User::where('id', $currentUser->id)->get();
+            $activitiesQuery = FieldActivity::whereDate('activity_date', $selectedDate)->where('user_id', $currentUser->id);
+            $onboardedQuery = Customer::whereDate('onboarded_date', $selectedDate)->where('onboarded_by', $currentUser->id);
+            $ordersQuery = Order::whereDate('order_date', $selectedDate)->where('user_id', $currentUser->id);
+            $paymentsQuery = Payment::whereDate('payment_date', $selectedDate)->where('user_id', $currentUser->id);
+        } else {
+            // HOD & Main Admin see all active field executives across all offices, with optional agent filter
+            $allAgents = User::where('role', 'field_agent')
+                ->where('status', 'active')
+                ->orderBy('name')
+                ->get();
+
+            $activitiesQuery = FieldActivity::whereDate('activity_date', $selectedDate);
+            $onboardedQuery = Customer::whereDate('onboarded_date', $selectedDate);
+            $ordersQuery = Order::whereDate('order_date', $selectedDate);
+            $paymentsQuery = Payment::whereDate('payment_date', $selectedDate);
+
+            if ($request->filled('agent_id')) {
+                $agentId = (int) $request->input('agent_id');
+                $activitiesQuery->where('user_id', $agentId);
+                $onboardedQuery->where('onboarded_by', $agentId);
+                $ordersQuery->where('user_id', $agentId);
+                $paymentsQuery->where('user_id', $agentId);
+                $allAgents = $allAgents->where('id', $agentId);
+            }
+        }
 
         // Activities on selected date with customer and agent
-        $activities = FieldActivity::where('activity_date', $selectedDate)
-            ->with(['user', 'customer'])
+        $activities = $activitiesQuery->with(['user', 'customer'])
             ->orderBy('check_in_time', 'asc')
             ->get();
 
@@ -41,29 +66,26 @@ class ActivityController extends Controller
         $activitiesByAgent = $activities->groupBy('user_id');
 
         // Customers onboarded on that exact date
-        $onboardedOnDate = Customer::whereDate('onboarded_date', $selectedDate)
-            ->with('onboardedBy')
+        $onboardedOnDate = $onboardedQuery->with('onboardedBy')
             ->get()
             ->groupBy('onboarded_by');
 
         // Orders booked on that exact date
-        $ordersOnDate = Order::whereDate('order_date', $selectedDate)
-            ->with('customer')
+        $ordersOnDate = $ordersQuery->with('customer')
             ->get()
             ->groupBy('user_id');
 
         // Payments collected on that exact date
-        $paymentsOnDate = Payment::whereDate('payment_date', $selectedDate)
-            ->with('customer')
+        $paymentsOnDate = $paymentsQuery->with('customer')
             ->get()
             ->groupBy('user_id');
 
         // Compute summary metrics for the day
         $activeAgentCount = $activitiesByAgent->count();
         $totalVisits = $activities->count();
-        $totalNewCustomers = Customer::whereDate('onboarded_date', $selectedDate)->count();
-        $totalOrdersAmount = Order::whereDate('order_date', $selectedDate)->sum('total_amount');
-        $totalCollectionsAmount = Payment::whereDate('payment_date', $selectedDate)->sum('amount');
+        $totalNewCustomers = $onboardedQuery->count();
+        $totalOrdersAmount = $ordersQuery->sum('total_amount');
+        $totalCollectionsAmount = $paymentsQuery->sum('amount');
 
         // Build structured agent breakdown for the day
         $agentDaySummaries = $allAgents->map(function ($agent) use ($activitiesByAgent, $onboardedOnDate, $ordersOnDate, $paymentsOnDate) {

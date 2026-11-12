@@ -21,8 +21,8 @@ class CustomerController extends Controller
     {
         $query = Customer::with('onboardedBy');
 
-        // Field agents by default see their own or can filter all
-        if (Auth::user()->isFieldAgent() && !$request->has('view_all')) {
+        // Field agents strictly only see the customers they have created / assigned to their field office
+        if (Auth::user()->isFieldAgent()) {
             $query->where('onboarded_by', Auth::id());
         }
 
@@ -80,6 +80,11 @@ class CustomerController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        // Field agents always onboard customers under their own field account
+        if (Auth::user()->isFieldAgent()) {
+            $request->merge(['onboarded_by' => Auth::id()]);
+        }
+
         $validated = $request->validate([
             'company_name' => ['required', 'string', 'max:255'],
             'customer_code' => ['required', 'string', 'max:50', 'unique:customers,customer_code'],
@@ -129,6 +134,11 @@ class CustomerController extends Controller
 
     public function show(Customer $customer): View
     {
+        // Field agents can strictly only view customers assigned to their field office
+        if (Auth::user()->isFieldAgent() && $customer->onboarded_by !== Auth::id()) {
+            abort(403, 'Unauthorized access: You are only authorized to view customers assigned to your field office.');
+        }
+
         $customer->load(['onboardedBy', 'activities.user', 'orders.items.product', 'payments']);
 
         $activities = $customer->activities()->with('user')->orderBy('activity_date', 'desc')->paginate(10);
@@ -140,6 +150,11 @@ class CustomerController extends Controller
 
     public function edit(Customer $customer): View
     {
+        // Field agents can strictly only edit customers assigned to their field office
+        if (Auth::user()->isFieldAgent() && $customer->onboarded_by !== Auth::id()) {
+            abort(403, 'Unauthorized access: You can only edit customers assigned to your field office.');
+        }
+
         $agents = User::where('role', 'field_agent')->orderBy('name')->get();
 
         return view('customers.edit', compact('customer', 'agents'));
@@ -147,6 +162,11 @@ class CustomerController extends Controller
 
     public function update(Request $request, Customer $customer): RedirectResponse
     {
+        // Field agents can strictly only update customers assigned to their field office
+        if (Auth::user()->isFieldAgent() && $customer->onboarded_by !== Auth::id()) {
+            abort(403, 'Unauthorized access: You can only update customers assigned to your field office.');
+        }
+
         $validated = $request->validate([
             'company_name' => ['required', 'string', 'max:255'],
             'contact_person' => ['required', 'string', 'max:255'],

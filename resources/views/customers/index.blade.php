@@ -11,10 +11,15 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-brand-600 mb-1">
                 <i class="fa-solid fa-shop"></i>
-                <span>Client Portfolio</span>
+                <span>{{ Auth::user()->isFieldAgent() ? 'My Assigned Territory' : 'Lagos Commercial Operations' }}</span>
             </div>
-            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Onboarded Stores & Retailers</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Directory of verified retail shops, electrical contractors, lighting showrooms, and wholesale distributors.</p>
+            @if(Auth::user()->isFieldAgent())
+                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">My Customer Directory</h1>
+                <p class="text-xs text-slate-500 mt-0.5">Showing stores and retailers managed by {{ Auth::user()->name }} ({{ Auth::user()->agent_code }} &bull; {{ Auth::user()->territory }}).</p>
+            @else
+                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">All Onboarded Stores & Retailers</h1>
+                <p class="text-xs text-slate-500 mt-0.5">Central directory across all field offices, territories, and central HQ pool.</p>
+            @endif
         </div>
 
         <div class="flex items-center space-x-2 shrink-0">
@@ -36,8 +41,8 @@
 
     <!-- Search & Filter Card -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-card p-4 sm:p-5">
-        <form action="{{ route('customers.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
-            <div class="lg:col-span-2">
+        <form action="{{ route('customers.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 {{ Auth::user()->isLeadOrAdmin() ? 'lg:grid-cols-5' : 'lg:grid-cols-4' }} gap-3 text-xs">
+            <div class="{{ Auth::user()->isLeadOrAdmin() ? 'lg:col-span-2' : 'lg:col-span-2' }}">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                         <i class="fa-solid fa-magnifying-glass text-xs"></i>
@@ -59,9 +64,10 @@
                 </select>
             </div>
 
+            @if(Auth::user()->isLeadOrAdmin())
             <div>
                 <select name="agent_id" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-white text-slate-800 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none transition-all">
-                    <option value="">Assigned Rep (All)</option>
+                    <option value="">Assigned Field Rep / Office (All)</option>
                     @if(isset($unassignedCount) && $unassignedCount > 0)
                         <option value="unassigned" {{ request('agent_id') === 'unassigned' ? 'selected' : '' }}>
                             ⚠️ Unassigned (HQ Pool) ({{ $unassignedCount }})
@@ -69,11 +75,12 @@
                     @endif
                     @foreach($agents as $ag)
                         <option value="{{ $ag->id }}" {{ request('agent_id') == $ag->id ? 'selected' : '' }}>
-                            {{ $ag->name }} &bull; {{ $ag->agent_code }}
+                            {{ $ag->name }} &bull; {{ $ag->agent_code }} ({{ $ag->territory }})
                         </option>
                     @endforeach
                 </select>
             </div>
+            @endif
 
             <div class="flex items-center space-x-2">
                 <input type="date" name="onboarded_date" value="{{ request('onboarded_date') }}" title="Filter by Onboarded Day"

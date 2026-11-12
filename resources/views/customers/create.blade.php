@@ -243,19 +243,33 @@
                         <p class="text-[10px] text-slate-400 mt-0.5">The exact date this customer is registered</p>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                            Onboarded By (Field Sales Rep) <span class="text-red-500">*</span>
-                        </label>
-                        <select name="onboarded_by" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-white text-slate-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            @foreach($agents as $ag)
-                                <option value="{{ $ag->id }}" {{ (old('onboarded_by') == $ag->id || Auth::id() == $ag->id) ? 'selected' : '' }}>
-                                    {{ $ag->name }} ({{ $ag->agent_code }} - {{ $ag->territory }})
-                                </option>
-                            @endforeach
-                        </select>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Field executive credited for customer acquisition</p>
-                    </div>
+                    @if(Auth::user()->isFieldAgent())
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                                Onboarded By (My Field Office)
+                            </label>
+                            <input type="hidden" name="onboarded_by" value="{{ Auth::id() }}">
+                            <div class="px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-slate-800 text-sm font-semibold flex items-center space-x-2">
+                                <i class="fa-solid fa-user-check text-emerald-600"></i>
+                                <span>{{ Auth::user()->name }} ({{ Auth::user()->agent_code }} &bull; {{ Auth::user()->territory }})</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Credited automatically to your field sales account</p>
+                        </div>
+                    @else
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                                Onboarded By (Field Sales Rep) <span class="text-red-500">*</span>
+                            </label>
+                            <select name="onboarded_by" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-white text-slate-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                @foreach($agents as $ag)
+                                    <option value="{{ $ag->id }}" {{ (old('onboarded_by') == $ag->id || Auth::id() == $ag->id) ? 'selected' : '' }}>
+                                        {{ $ag->name }} ({{ $ag->agent_code }} - {{ $ag->territory }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Field executive credited for customer acquisition</p>
+                        </div>
+                    @endif
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">

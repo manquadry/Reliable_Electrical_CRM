@@ -41,12 +41,25 @@
                     <i class="fa-solid fa-chevron-left"></i>
                 </a>
 
-                <!-- Interactive Date Input Form -->
-                <form action="{{ route('activities.daily') }}" method="GET" class="flex items-center">
+                <!-- Interactive Date & Agent Input Form -->
+                <form action="{{ route('activities.daily') }}" method="GET" class="flex flex-wrap items-center gap-2">
                     <div class="relative">
                         <input type="date" name="date" value="{{ $selectedDate }}" onchange="this.form.submit()"
                                class="text-xs font-semibold px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 shadow-2xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
                     </div>
+                    @if(Auth::user()->isLeadOrAdmin())
+                        <select name="agent_id" onchange="this.form.submit()" class="text-xs font-semibold px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 shadow-2xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="">All Field Offices / Reps</option>
+                            @php
+                                $filterAgents = App\Models\User::where('role', 'field_agent')->where('status', 'active')->orderBy('name')->get();
+                            @endphp
+                            @foreach($filterAgents as $ag)
+                                <option value="{{ $ag->id }}" {{ request('agent_id') == $ag->id ? 'selected' : '' }}>
+                                    {{ $ag->name }} &bull; {{ $ag->agent_code }} ({{ $ag->territory }})
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
                 </form>
 
                 <!-- Next Day Arrow -->

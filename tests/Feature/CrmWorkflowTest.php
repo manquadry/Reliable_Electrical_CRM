@@ -639,4 +639,111 @@ class CrmWorkflowTest extends TestCase
         $this->assertEquals($agent->id, $c1->fresh()->onboarded_by);
         $this->assertEquals($agent->id, $c2->fresh()->onboarded_by);
     }
+
+    public function test_field_executive_only_sees_their_own_customers_and_cannot_view_others(): void
+    {
+        $agentA = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+        $agentB = User::factory()->create(['role' => 'field_agent', 'email' => 'agentB_' . time() . '@test.ng']);
+
+        $customerA = Customer::create([
+            'company_name' => 'Agent A Exclusive Retailer ' . time(),
+            'customer_code' => 'CUST-A-' . time(),
+            'contact_person' => 'Proprietor A',
+            'phone' => '08012341234',
+            'category' => 'retailer',
+            'territory' => 'Ikeja',
+            'address' => 'Ikeja Mall Store 1',
+            'city' => 'Lagos',
+            'state' => 'Lagos State',
+            'credit_limit' => 500000,
+            'payment_terms' => 'cash_on_delivery',
+            'onboarded_by' => $agentA->id,
+            'onboarded_date' => Carbon::now()->toDateString(),
+        ]);
+
+        $customerB = Customer::create([
+            'company_name' => 'Agent B Secret Wholesaler ' . time(),
+            'customer_code' => 'CUST-B-' . time(),
+            'contact_person' => 'Proprietor B',
+            'phone' => '08056785678',
+            'category' => 'wholesaler',
+            'territory' => 'Lekki',
+            'address' => 'Lekki Plaza Shop 2',
+            'city' => 'Lagos',
+            'state' => 'Lagos State',
+            'credit_limit' => 1000000,
+            'payment_terms' => 'net_14',
+            'onboarded_by' => $agentB->id,
+            'onboarded_date' => Carbon::now()->toDateString(),
+        ]);
+
+        // Agent A on /customers directory can only see customer A, NOT customer B
+        $responseA = $this->actingAs($agentA)->get('/customers');
+        $responseA->assertStatus(200);
+        $responseA->assertSee($customerA->company_name);
+        $responseA->assertDontSee($customerB->company_name);
+
+        // Agent A cannot access customer B profile (403 Forbidden)
+        $forbiddenResponse = $this->actingAs($agentA)->get("/customers/{$customerB->id}");
+        $forbiddenResponse->assertStatus(403);
+
+        // Agent A can access their own customer A profile (200 OK)
+        $ownResponse = $this->actingAs($agentA)->get("/customers/{$customerA->id}");
+        $ownResponse->assertStatus(200);
+        $ownResponse->assertSee($customerA->company_name);
+
+        // HOD & Admin can see both customer A and customer B
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+        $adminResponse = $this->actingAs($admin)->get('/customers');
+        $adminResponse->assertStatus(200);
+        $adminResponse->assertSee($customerA->company_name);
+        $adminResponse->assertSee($customerB->company_name);
+    }
+
+    public function test_daily_tracker_is_scoped_for_field_executive_and_full_view_for_admin(): void
+    {
+        $today = Carbon::today()->toDateString();
+        $agentA = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+        $agentB = User::factory()->create(['role' => 'field_agent', 'email' => 'agentB_act_' . time() . '@test.ng']);
+
+        // Log check-in for Agent A and Agent B
+        $actA = \App\Models\FieldActivity::create([
+            'user_id' => $agentA->id,
+            'activity_date' => $today,
+            'check_in_time' => '09:15:00',
+            'activity_type' => 'routine_sales_visit',
+            'purpose' => 'Agent A Store Discussion ' . time(),
+            'notes' => 'Agent A routine check',
+            'outcome' => 'order_booked',
+        ]);
+
+        $actB = \App\Models\FieldActivity::create([
+            'user_id' => $agentB->id,
+            'activity_date' => $today,
+            'check_in_time' => '10:30:00',
+            'activity_type' => 'routine_sales_visit',
+            'purpose' => 'Agent B Special Meeting ' . time(),
+            'notes' => 'Agent B meeting notes',
+            'outcome' => 'prospect_interested',
+        ]);
+
+        // Agent A visits daily tracker: only sees their own activity
+        $agentResponse = $this->actingAs($agentA)->get('/activities/daily');
+        $agentResponse->assertStatus(200);
+        $agentResponse->assertSee($actA->purpose);
+        $agentResponse->assertDontSee($actB->purpose);
+
+        // Admin visits daily tracker: sees both activities in real time
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+        $adminResponse = $this->actingAs($admin)->get('/activities/daily');
+        $adminResponse->assertStatus(200);
+        $adminResponse->assertSee($actA->purpose);
+        $adminResponse->assertSee($actB->purpose);
+
+        // Admin filters by Agent A: only sees Agent A
+        $filterResponse = $this->actingAs($admin)->get("/activities/daily?agent_id={$agentA->id}");
+        $filterResponse->assertStatus(200);
+        $filterResponse->assertSee($actA->purpose);
+        $filterResponse->assertDontSee($actB->purpose);
+    }
 }
