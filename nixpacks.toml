@@ -1,0 +1,27 @@
+[phases.setup]
+nixPkgs = [
+    "php83",
+    "php83Packages.composer",
+    "php83Extensions.pdo_sqlite",
+    "php83Extensions.sqlite3",
+    "php83Extensions.mbstring",
+    "php83Extensions.openssl",
+    "php83Extensions.curl",
+    "php83Extensions.tokenizer",
+    "php83Extensions.xml",
+    "php83Extensions.zip"
+]
+
+[phases.install]
+cmds = [
+    "composer install --no-dev --optimize-autoloader --no-interaction"
+]
+
+[phases.build]
+cmds = [
+    "mkdir -p database storage/framework/cache storage/framework/sessions storage/framework/views storage/logs",
+    "touch database/database.sqlite"
+]
+
+[start]
+cmd = "bash start.sh"
