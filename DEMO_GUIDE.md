@@ -10,7 +10,6 @@
 | Parameter | Value |
 | :--- | :--- |
 | **Live Railway URL** | [https://crm-web-production-a3173e81.up.railway.app](https://crm-web-production-a3173e81.up.railway.app) |
-| **GitHub Repository** | [https://github.com/manquadry/Reliable_Electrical_CRM](https://github.com/manquadry/Reliable_Electrical_CRM) |
 | **Demo 1-Click Switcher** | Available directly at `/login` (no password typing required) |
 | **Default Password** | `password` (for all seeded demo accounts) |
 
@@ -275,17 +274,6 @@ Step 7: Switch back to Admin to verify live audit update
         ↳ Refresh the Daily Tracker: the new check-in, customer onboarding, and order immediately show up on today's audit!
         ↳ Demonstrate 1-click Export to CSV (/activities/report).
 ```
-
----
-
-## 7. Security, Auditing & Technical Specifications
-
-* **Framework**: Laravel 13 running on PHP 8.3.
-* **Database**: SQLite with foreign key cascading and indexed relationships.
-* **Hosting Platform**: Railway Cloud (`Reliable-Electrical-CRM` project, `crm-web` service).
-* **SSL / Security**: HTTPS enforced via Railway proxy trust headers with CSRF protection, hashed passwords (bcrypt), and role-based route middleware.
-* **Location Tracking**: Browser Geolocation API integration with automatic decimal conversion (`latitude`, `longitude`) and direct Google Maps navigation links.
-* **Print Styling**: Dedicated CSS print media rules (`@media print`) that format invoices and waybills onto standard A4 paper without navigation bars.
 
 ---
 *Reliable Electrics Nigeria Limited • Phase 1, 32B Oguntona Crescent, Gbagada, Lagos • Enterprise CRM*
