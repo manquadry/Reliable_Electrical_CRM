@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reliable Electrics Nigeria Limited - CRM Stakeholder & Demo Guide</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        @page {
+            size: A4 portrait;
+            margin: 14mm 14mm 16mm 14mm;
+            @bottom-right {
+                content: "Page " counter(page) " of " counter(pages);
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 8pt;
+                color: #64748b;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            background-color: #ffffff;
+            font-size: 9.5pt;
+            line-height: 1.5;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* Header / Brand Banner */
+        .header {
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .header-brand h1 {
+            font-size: 18pt;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .header-brand .subtitle {
+            font-size: 9.5pt;
+            color: #2563eb;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 3px;
+        }
+
+        .header-brand .address {
+            font-size: 8pt;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .header-tag {
+            text-align: right;
+        }
+
+        .badge-live {
+            background-color: #ecfdf5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 7.5pt;
+            font-weight: 700;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .doc-title {
+            font-size: 8pt;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* Section Styling */
+        h2 {
+            font-size: 12pt;
+            font-weight: 800;
+            color: #0f172a;
+            border-left: 4px solid #2563eb;
+            padding-left: 8px;
+            margin-top: 18px;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        h3 {
+            font-size: 10.5pt;
+            font-weight: 700;
+            color: #1e293b;
+            margin-top: 12px;
+            margin-bottom: 6px;
+        }
+
+        p {
+            margin-bottom: 8px;
+            color: #334155;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            margin-bottom: 14px;
+            font-size: 8.5pt;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-weight: 700;
+            text-align: left;
+            padding: 7px 9px;
+            border: 1px solid #cbd5e1;
+            font-size: 8pt;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        td {
+            padding: 6px 9px;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+
+        /* Cards & Callouts */
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            break-inside: avoid;
+        }
+
+        .callout-blue {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-left: 4px solid #2563eb;
+            border-radius: 6px;
+            padding: 9px 12px;
+            margin-bottom: 12px;
+            font-size: 8.5pt;
+            break-inside: avoid;
+        }
+
+        .callout-amber {
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 4px solid #d97706;
+            border-radius: 6px;
+            padding: 9px 12px;
+            margin-bottom: 12px;
+            font-size: 8.5pt;
+            break-inside: avoid;
+        }
+
+        .callout-emerald {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-left: 4px solid #16a34a;
+            border-radius: 6px;
+            padding: 9px 12px;
+            margin-bottom: 12px;
+            font-size: 8.5pt;
+            break-inside: avoid;
+        }
+
+        /* Code & Monospace */
+        code, .mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8pt;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 1px 4px;
+            border-radius: 3px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Step boxes */
+        .step-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 10px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 10px;
+            break-inside: avoid;
+        }
+
+        .step-num {
+            flex-shrink: 0;
+            width: 22px;
+            height: 22px;
+            background: #2563eb;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 8pt;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 8.5pt;
+            margin-bottom: 2px;
+        }
+
+        .step-desc {
+            font-size: 8pt;
+            color: #475569;
+            line-height: 1.4;
+        }
+
+        /* Key Metrics Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            break-inside: avoid;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+            break-inside: avoid;
+        }
+
+        .stat-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 10px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 13pt;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .stat-lbl {
+            font-size: 7.5pt;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            margin-top: 2px;
+        }
+
+        /* Action Badges */
+        .tag-admin {
+            background-color: #fef3c7;
+            color: #b45309;
+            font-size: 7pt;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .tag-field {
+            background-color: #d1fae5;
+            color: #047857;
+            font-size: 7pt;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .tag-customer {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            font-size: 7pt;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        /* Page Break Utilities */
+        .page-break {
+            page-break-before: always;
+        }
+
+        .no-break {
+            break-inside: avoid;
+        }
+
+        /* Footer Info */
+        .doc-footer {
+            margin-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 8px;
+            font-size: 7.5pt;
+            color: #94a3b8;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== PAGE 1 ==================== -->
+    <div class="header">
+        <div class="header-brand">
+            <h1>Reliable Electrics Nigeria Limited</h1>
+            <div class="subtitle">Enterprise Field Sales & Commercial Distribution CRM</div>
+            <div class="address">Central Operations: Phase 1, 32B Oguntona Crescent, Gbagada, Lagos • Distributor of Lighting & Switchgear</div>
+        </div>
+        <div class="header-tag">
+            <span class="badge-live">Live Production</span>
+            <div class="doc-title">Demo & Stakeholder Guide</div>
+        </div>
+    </div>
+
+    <div class="callout-blue">
+        <strong>Executive Summary:</strong> This document outlines the exact operational roles, system permissions, and step-by-step actions for every stakeholder participating in a live demo of the Reliable Electrics CRM. The application bridges executive distribution planning with boots-on-the-ground field sales execution across commercial corridors in Lagos.
+    </div>
+
+    <!-- Quick Credentials Box -->
+    <h2>1. Live Access & Seeded Demo Directory</h2>
+    <div class="card">
+        <p style="margin-bottom: 6px;"><strong>Live Application URL:</strong> <a href="https://crm-web-production-a3173e81.up.railway.app" style="color: #2563eb; text-decoration: none; font-weight: 600;">https://crm-web-production-a3173e81.up.railway.app</a></p>
+        <p style="margin-bottom: 6px;"><strong>GitHub Repository:</strong> <a href="https://github.com/manquadry/Reliable_Electrical_CRM" style="color: #2563eb; text-decoration: none;">https://github.com/manquadry/Reliable_Electrical_CRM</a></p>
+        <p style="margin-bottom: 8px;"><strong>1-Click Quick-Login Switcher:</strong> Active on the <code class="mono">/login</code> screen. Tap any role to log in instantly without entering credentials.</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Stakeholder / Persona</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Code / Ref</th>
+                    <th>Assigned Territory</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="tag-admin">Executive Admin</span></td>
+                    <td><strong>Engr. Adekunle Lawal</strong></td>
+                    <td><code class="mono">admin@reliableelectrics.ng</code></td>
+                    <td><code class="mono">HQ-ADM-01</code></td>
+                    <td>HQ Operations & Lagos State Wide</td>
+                </tr>
+                <tr>
+                    <td><span class="tag-field">Field Executive</span></td>
+                    <td><strong>Chinedu Okeke</strong></td>
+                    <td><code class="mono">chinedu@reliableelectrics.ng</code></td>
+                    <td><code class="mono">REL-FE-101</code></td>
+                    <td>Ikeja, Alausa & Oregun Hub</td>
+                </tr>
+                <tr>
+                    <td><span class="tag-field">Field Executive</span></td>
+                    <td><strong>Fatima Bello</strong></td>
+                    <td><code class="mono">fatima@reliableelectrics.ng</code></td>
+                    <td><code class="mono">REL-FE-102</code></td>
+                    <td>Lekki Phase 1, VI & Ikoyi Corridor</td>
+                </tr>
+                <tr>
+                    <td><span class="tag-field">Field Executive</span></td>
+                    <td><strong>Emeka Nnamdi</strong></td>
+                    <td><code class="mono">emeka@reliableelectrics.ng</code></td>
+                    <td><code class="mono">REL-FE-103</code></td>
+                    <td>Alaba Int'l Market & Trade Fair</td>
+                </tr>
+                <tr>
+                    <td><span class="tag-field">Field Executive</span></td>
+                    <td><strong>Tunde Balogun</strong></td>
+                    <td><code class="mono">tunde@reliableelectrics.ng</code></td>
+                    <td><code class="mono">REL-FE-104</code></td>
+                    <td>Gbagada, Ogudu, Anthony & Shomolu</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="font-size: 7.5pt; color: #64748b; margin-top: -6px;">*Default password for manual login on all accounts: <code class="mono">password</code>.</p>
+    </div>
+
+    <!-- Stakeholder Architecture -->
+    <h2>2. Stakeholder Responsibilities Matrix</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 20%;">Stakeholder</th>
+                <th style="width: 40%;">Primary Purpose & Focus</th>
+                <th style="width: 40%;">Key CRM Modules Accessed</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Executive Management / Admin</strong></td>
+                <td>Distribution strategy, sales target governance, territory allocation, daily auditing of field teams, credit approval, and dispatch logistics.</td>
+                <td>Executive Dashboard, Date-by-Date Daily Tracker, Agent Onboarding, Customer Directory, Orders & Waybills, CSV Reports.</td>
+            </tr>
+            <tr>
+                <td><strong>Field Sales Executives</strong></td>
+                <td>Boots-on-the-ground client relationship management, physical store check-ins with GPS, customer onboarding, taking instant purchase orders, and payment collections.</td>
+                <td>Field Dashboard, Geolocation Check-In (<code class="mono">/activities/check-in</code>), Store Onboarding, Order Booking, Payment Entry, Mobile Navigation.</td>
+            </tr>
+            <tr>
+                <td><strong>Commercial Customers (Retailers / Contractors)</strong></td>
+                <td>Wholesale stock replenishment, transparent pricing tiers, agreed credit limits, formal delivery waybill inspection, and payment reconciliation.</td>
+                <td>Customer Directory Profile, Product Catalog, Order Invoices, Delivery Waybills with serial/dispatch verification.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="grid-3">
+        <div class="stat-box">
+            <div class="stat-val">₦50,000,000</div>
+            <div class="stat-lbl">Lagos Monthly Target</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val">4 Corridors</div>
+            <div class="stat-lbl">Active Sales Territories</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val">100% Verified</div>
+            <div class="stat-lbl">GPS Geolocation Check-Ins</div>
+        </div>
+    </div>
+
+    <!-- ==================== PAGE 2 ==================== -->
+    <div class="page-break"></div>
+
+    <div class="header">
+        <div class="header-brand">
+            <h1>Reliable Electrics Nigeria Limited</h1>
+            <div class="subtitle">Admin Operational Workflows</div>
+        </div>
+        <div class="header-tag">
+            <span class="tag-admin" style="font-size: 8pt; padding: 4px 8px;">Role: Executive Admin</span>
+        </div>
+    </div>
+
+    <h2>3. Executive Management (Admin) Workflows</h2>
+    <p>The Managing Director has unrestricted governance across commercial metrics, field operations, and accounting.</p>
+
+    <div class="step-container">
+        <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-content">
+                <div class="step-title">Executive Dashboard Overview (<code class="mono">/dashboard</code>)</div>
+                <div class="step-desc">Inspect real-time revenue attainment vs target (₦), total active field executives, registered commercial stores, and pending order dispatches. Review territory distribution charts and the live activity stream.</div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-content">
+                <div class="step-title">Date-by-Date Daily Activity Tracker (<code class="mono">/activities/daily</code>)</div>
+                <div class="step-desc">Select <strong>any specific date</strong> on the interactive calendar picker. The view summarizes:
+                    <ul style="margin-left: 16px; margin-top: 3px; font-size: 8pt;">
+                        <li>Daily tally: Total store visits, orders booked, collections logged, new retailers onboarded.</li>
+                        <li>Agent Breakdown: Individual cards for Chinedu, Fatima, Emeka, and Tunde.</li>
+                        <li>Time-stamped audit logs with visit notes and <strong>clickable GPS coordinates</strong> linking directly to Google Maps.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-content">
+                <div class="step-title">Field Sales Executive Onboarding (<code class="mono">/agents/create</code>)</div>
+                <div class="step-desc">Register new field agents into the CRM. Set official email, unique Employee Code (<code class="mono">REL-FE-XXX</code>), assigned sales territory, monthly sales quota (₦), daily visit benchmark, monthly store onboarding quota, and allocated company vehicle (Motorbike/Van/Car).</div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-content">
+                <div class="step-title">Customer Onboarding Audit & Directory (<code class="mono">/customers</code>)</div>
+                <div class="step-desc">Audit all electrical retail stores and building contractors onboarded by field agents. Verify exact onboarding dates, originating field agent, assigned credit terms, and physical GPS storefront coordinates.</div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-num">5</div>
+            <div class="step-content">
+                <div class="step-title">Activity Audit & One-Click CSV Export (<code class="mono">/activities/report</code>)</div>
+                <div class="step-desc">Filter activities by agent, activity category, and custom date range. Click <strong>Export CSV</strong> to immediately generate an audit spreadsheet for board meetings, transport allowances, and commission calculations.</div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-num">6</div>
+            <div class="step-content">
+                <div class="step-title">Sales Orders & Formal Printable Waybills (<code class="mono">/orders</code>)</div>
+                <div class="step-desc">Manage order statuses (<code class="mono">Pending</code>, <code class="mono">Confirmed</code>, <code class="mono">Shipped</code>, <code class="mono">Delivered</code>). Open any order to generate a branded, printable A4 <strong>Delivery Waybill & Invoice</strong> from Gbagada central warehouse with signature sign-off lines.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="callout-amber">
+        <strong>Key Management Decision Point:</strong> The Date-by-Date Daily Tracker solves field opacity. Executive management can verify whether a field executive was physically present at Alaba or Ikeja at the reported time via the GPS link and corresponding order booking timestamp.
+    </div>
+
+    <!-- ==================== PAGE 3 ==================== -->
+    <div class="page-break"></div>
+
+    <div class="header">
+        <div class="header-brand">
+            <h1>Reliable Electrics Nigeria Limited</h1>
+            <div class="subtitle">Field Executive Workflows</div>
+        </div>
+        <div class="header-tag">
+            <span class="tag-field" style="font-size: 8pt; padding: 4px 8px;">Role: Field Sales Agent</span>
+        </div>
+    </div>
+
+    <h2>4. Field Sales Executive Workflows</h2>
+    <p>Field agents use mobile smartphones and tablets on the road to register storefronts, check in, and close deals.</p>
+
+    <div class="step-container">
+        <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-content">
+                <div class="step-title">Agent Field Dashboard & Mobile Navigation Bar</div>
+                <div class="step-desc">When logged in as a field agent, the interface personalizes to their territory, monthly quota attainment bar, today's visit target counter, and mobile-optimized sticky bottom navigation bar (Home, Daily Log, Check-In, Customers, Orders).</div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-content">
+                <div class="step-title">Mobile GPS Check-In (<code class="mono">/activities/check-in</code>)</div>
+                <div class="step-desc">During a physical client visit, the agent taps <strong>Check-In</strong>:
+                    <ul style="margin-left: 16px; margin-top: 3px; font-size: 8pt;">
+                        <li>Selects existing customer or enters prospective client name.</li>
+                        <li>Selects visit purpose (Routine Restock, Pitch, Order Taking, Debt Collection, Complaint).</li>
+                        <li>Taps <strong>Capture Current Location (GPS)</strong>: Browser automatically stamps decimal coordinates.</li>
+                        <li>Enters visit notes & outcomes, then submits. Instantly updates the Admin Daily Tracker.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-content">
+                <div class="step-title">Customer Onboarding in the Field (<code class="mono">/customers/create</code>)</div>
+                <div class="step-desc">When discovering a new electrical dealer or contractor, the agent completes the onboarding form:
+                    <ul style="margin-left: 16px; margin-top: 3px; font-size: 8pt;">
+                        <li>Business Name, Owner/Contact Name, Phone, Email, Physical Address, and Landmark.</li>
+                        <li>Category: Wholesaler, Lighting Gallery, Retailer, Electrical Contractor.</li>
+                        <li>Captures store GPS location, sets agreed Credit Limit (₦) and Payment Terms (e.g. Net 14 Days).</li>
+                        <li>Automatically stamps onboarding date and links the client to the agent's account.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-content">
+                <div class="step-title">Instant Sales Order Booking (<code class="mono">/orders/create</code>)</div>
+                <div class="step-desc">Select customer and pick items from the catalog (LED floodlights, distribution boards, MCBs, chandeliers, copper cables). Quantities, wholesale discount tiers, and totals calculate live. Submit order to initiate warehouse dispatch.</div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-num">5</div>
+            <div class="step-content">
+                <div class="step-title">Logging Payment Collections (<code class="mono">/payments/create</code>)</div>
+                <div class="step-desc">Record bank transfers, POS receipts, cheques, or cash collected from customers against active orders. Enter transaction reference to instantly credit customer balance.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="callout-emerald">
+        <strong>Zero App Installation Required:</strong> Built as a high-performance web application accessible on any Android or iOS browser with native geolocation support, low data consumption, and fast load times.
+    </div>
+
+    <!-- ==================== PAGE 4 ==================== -->
+    <div class="page-break"></div>
+
+    <div class="header">
+        <div class="header-brand">
+            <h1>Reliable Electrics Nigeria Limited</h1>
+            <div class="subtitle">Complete 10-Minute Demo Script</div>
+        </div>
+        <div class="header-tag">
+            <span class="badge-live">Live Demo Script</span>
+        </div>
+    </div>
+
+    <h2>5. Recommended 10-Minute Demonstration Script</h2>
+    <p>Follow this exact chronological sequence to showcase the system to executive stakeholders or prospective clients:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 12%;">Time</th>
+                <th style="width: 28%;">Demonstration Step</th>
+                <th style="width: 60%;">What to Highlight & Narrate</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>0:00 - 1:30</strong></td>
+                <td><strong>1. Landing & Role Switcher</strong><br/><code class="mono">/login</code></td>
+                <td>Show the 1-click Quick-Login switcher. Explain that Reliable Electrics operates a dual structure: Executive Management at Gbagada HQ and Field Sales Agents across Lagos commercial hubs.</td>
+            </tr>
+            <tr>
+                <td><strong>1:30 - 3:30</strong></td>
+                <td><strong>2. Executive Dashboard</strong><br/><code class="mono">/dashboard</code> (Admin)</td>
+                <td>Log in as Admin (Engr. Adekunle Lawal). Highlight Lagos monthly target (₦50M), quota pacing, active field agents count, territory distribution chart, and the top performing agent leaderboard.</td>
+            </tr>
+            <tr>
+                <td><strong>3:30 - 5:30</strong></td>
+                <td><strong>3. Date-by-Date Daily Tracker</strong><br/><code class="mono">/activities/daily</code></td>
+                <td>Pick today's date on the interactive calendar. Show how management sees every agent's activities for that specific day: visits, orders booked, payments collected. Click a GPS link to show Google Maps verification.</td>
+            </tr>
+            <tr>
+                <td><strong>5:30 - 7:00</strong></td>
+                <td><strong>4. Switch to Field Agent</strong><br/><code class="mono">/activities/check-in</code></td>
+                <td>Switch to Chinedu Okeke (Ikeja Hub). Demonstrate mobile view. Conduct a live Check-In: select customer, select "Routine Sales Visit", tap "Capture GPS", enter notes, and submit.</td>
+            </tr>
+            <tr>
+                <td><strong>7:00 - 8:30</strong></td>
+                <td><strong>5. Onboard New Customer</strong><br/><code class="mono">/customers/create</code></td>
+                <td>Fill in a new store (e.g., "Apex Power Solutions, Alausa"), capture GPS, set credit limit and payment terms. Submit and show that the customer is immediately added with today's onboarding date.</td>
+            </tr>
+            <tr>
+                <td><strong>8:30 - 9:30</strong></td>
+                <td><strong>6. Order Booking & Waybill</strong><br/><code class="mono">/orders/create</code></td>
+                <td>Create an order for 20x 50W LED floodlights and 5x distribution boards. Open the order and click <strong>Print Waybill</strong> to reveal the print-ready warehouse dispatch document with signature lines.</td>
+            </tr>
+            <tr>
+                <td><strong>9:30 - 10:00</strong></td>
+                <td><strong>7. Verification & CSV Export</strong><br/><code class="mono">/activities/report</code></td>
+                <td>Switch back to Admin. Refresh the Daily Tracker to prove the new check-in and order appeared live. Click <strong>Export CSV</strong> to demonstrate automated management reporting.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>6. Technical Specifications</h2>
+    <div class="grid-2">
+        <div class="card">
+            <strong>Architecture & Security:</strong>
+            <ul style="margin-left: 14px; margin-top: 4px; font-size: 8pt; color: #475569;">
+                <li>Built on Laravel 13 & PHP 8.3</li>
+                <li>SQLite database with indexed relationships</li>
+                <li>Hashed authentication (bcrypt) & CSRF protection</li>
+                <li>Role-based access middleware & HTTPS enforced</li>
+            </ul>
+        </div>
+        <div class="card">
+            <strong>Deployment & Reliability:</strong>
+            <ul style="margin-left: 14px; margin-top: 4px; font-size: 8pt; color: #475569;">
+                <li>Hosted on Railway Cloud (Dedicated Project)</li>
+                <li>High-speed CDN styling (Tailwind, FontAwesome)</li>
+                <li>Native Geolocation API integration</li>
+                <li>Print-optimized CSS rules (<code class="mono">@media print</code>)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="doc-footer">
+        <div>Reliable Electrics Nigeria Limited • Phase 1, 32B Oguntona Crescent, Gbagada, Lagos</div>
+        <div>Official Enterprise CRM Demo Guide • Page 4 of 4</div>
+    </div>
+
+</body>
+</html>
