@@ -23,3 +23,4 @@ class EnsureManagerOrAdmin
         return $next($request);
     }
 }
+
