@@ -117,6 +117,7 @@
                             <option value="lighting_showroom">Luxury Lighting Showroom</option>
                             <option value="supermarket">Supermarket Electrical Section</option>
                             <option value="real_estate_developer">Real Estate Developer</option>
+                            <option value="walk_in">Walk-in Customer / Over-The-Counter Cash</option>
                         </select>
                     </div>
 

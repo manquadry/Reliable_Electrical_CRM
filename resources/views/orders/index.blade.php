@@ -17,11 +17,19 @@
             <p class="text-xs text-slate-500 mt-0.5">Commercial wholesale and retail orders booked by field executives across Lagos.</p>
         </div>
 
-        <a href="{{ route('orders.create') }}" 
-           class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold shadow-md shadow-brand-600/30 hover:shadow-brand-600/50 transition-all shrink-0">
-            <i class="fa-solid fa-cart-plus"></i>
-            <span>Book New Sales Order</span>
-        </a>
+        <div class="flex items-center space-x-2 shrink-0">
+            <a href="{{ route('orders.create', ['walk_in' => 1]) }}" 
+               class="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white text-xs font-bold shadow-md shadow-cyan-600/30 hover:shadow-cyan-600/50 transition-all">
+                <i class="fa-solid fa-person-walking-arrow-right"></i>
+                <span>⚡ Counter Sale (Walk-in)</span>
+            </a>
+
+            <a href="{{ route('orders.create') }}" 
+               class="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold shadow-md shadow-brand-600/30 hover:shadow-brand-600/50 transition-all">
+                <i class="fa-solid fa-cart-plus"></i>
+                <span>Book Field Order</span>
+            </a>
+        </div>
     </div>
 
     <!-- Search & Status Filter -->
@@ -92,9 +100,14 @@
                                 </a>
                             </td>
                             <td class="py-3.5 px-4">
-                                <a href="{{ route('customers.show', $o->customer) }}" class="font-bold text-slate-800 hover:text-brand-600 transition-colors">
-                                    {{ $o->customer?->company_name }}
-                                </a>
+                                <div class="flex items-center space-x-1.5 flex-wrap">
+                                    <a href="{{ route('customers.show', $o->customer) }}" class="font-bold text-slate-800 hover:text-brand-600 transition-colors">
+                                        {{ $o->customer?->company_name }}
+                                    </a>
+                                    @if($o->customer?->isWalkIn())
+                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-cyan-100 text-cyan-800 border border-cyan-200">Walk-in</span>
+                                    @endif
+                                </div>
                                 <div class="text-[10px] text-slate-400 mt-0.5 flex items-center space-x-1">
                                     <i class="fa-solid fa-map-pin text-rose-500 text-[9px]"></i>
                                     <span>{{ $o->customer?->territory }}</span>

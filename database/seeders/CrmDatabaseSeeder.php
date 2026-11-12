@@ -290,8 +290,31 @@ class CrmDatabaseSeeder extends Seeder
             $createdProducts[] = Product::firstOrCreate(['sku' => $pData['sku']], $pData);
         }
 
-        // 3. Create Customers Onboarded by Field Agents
+        // 3. Create Customers Onboarded by Field Agents & HQ Counter
         $customersData = [
+            [
+                'company_name' => 'Walk-in Customer (Gbagada Showroom Counter)',
+                'customer_code' => 'CUST-WALKIN-HQ',
+                'contact_person' => 'Direct Walk-in Buyer',
+                'phone' => '+234 803 555 0192',
+                'alt_phone' => null,
+                'email' => 'counter@reliableelectrics.ng',
+                'category' => 'walk_in',
+                'territory' => 'Gbagada HQ & Direct Counter',
+                'address' => 'Phase 1, 32B Oguntona Crescent, Gbagada Showroom Counter',
+                'city' => 'Lagos',
+                'state' => 'Lagos State',
+                'landmark' => 'Reliable Electrics Central Warehouse',
+                'latitude' => 6.5568,
+                'longitude' => 3.3912,
+                'credit_limit' => 0.00,
+                'payment_terms' => 'cash_on_delivery',
+                'onboarded_by' => $salesManager->id,
+                'onboarded_date' => Carbon::now()->subDays(60)->toDateString(),
+                'verification_status' => 'verified',
+                'status' => 'active',
+                'notes' => 'Dedicated master customer account for direct over-the-counter cash, POS terminal, and instant transfer walk-in buyers.',
+            ],
             [
                 'company_name' => 'Apex Mega Lighting Showroom',
                 'customer_code' => 'CUST-VI-001',

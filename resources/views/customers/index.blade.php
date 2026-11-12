@@ -45,6 +45,7 @@
                     <option value="electrical_contractor" {{ request('category') == 'electrical_contractor' ? 'selected' : '' }}>Electrical Contractor</option>
                     <option value="lighting_showroom" {{ request('category') == 'lighting_showroom' ? 'selected' : '' }}>Lighting Showroom</option>
                     <option value="real_estate_developer" {{ request('category') == 'real_estate_developer' ? 'selected' : '' }}>Estate Developer</option>
+                    <option value="walk_in" {{ request('category') == 'walk_in' ? 'selected' : '' }}>Walk-in / Counter Sales</option>
                 </select>
             </div>
 
@@ -98,9 +99,16 @@
                                 <span class="text-[10px] text-slate-400 font-mono">{{ $c->customer_code }}</span>
                             </td>
                             <td class="py-3.5 px-4 whitespace-nowrap">
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                                    {{ $c->getCategoryLabelAttribute() }}
-                                </span>
+                                @if($c->category === 'walk_in')
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-50 text-cyan-700 border border-cyan-200 inline-flex items-center space-x-1">
+                                        <i class="fa-solid fa-person-walking text-[9px]"></i>
+                                        <span>Walk-in Counter</span>
+                                    </span>
+                                @else
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                        {{ $c->getCategoryLabelAttribute() }}
+                                    </span>
+                                @endif
                             </td>
                             <td class="py-3.5 px-4">
                                 <div class="font-bold text-slate-800">{{ $c->contact_person }}</div>

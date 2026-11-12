@@ -39,6 +39,7 @@
                         <option value="lighting_showroom" {{ $customer->category === 'lighting_showroom' ? 'selected' : '' }}>Lighting Showroom</option>
                         <option value="supermarket" {{ $customer->category === 'supermarket' ? 'selected' : '' }}>Supermarket</option>
                         <option value="real_estate_developer" {{ $customer->category === 'real_estate_developer' ? 'selected' : '' }}>Estate Developer</option>
+                        <option value="walk_in" {{ $customer->category === 'walk_in' ? 'selected' : '' }}>Walk-in / Counter Sales</option>
                     </select>
                 </div>
 

@@ -90,11 +90,25 @@
         <!-- Bill To & Ship To -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 py-6 border-b border-slate-200 text-xs">
             <div>
-                <h3 class="font-bold uppercase tracking-wider text-slate-400 mb-2">Customer (Bill To):</h3>
+                <div class="flex items-center space-x-2 mb-2">
+                    <h3 class="font-bold uppercase tracking-wider text-slate-400">Customer (Bill To):</h3>
+                    @if($order->customer?->isWalkIn())
+                        <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-cyan-100 text-cyan-800 border border-cyan-200 uppercase">
+                            ⚡ Walk-in Counter Sale
+                        </span>
+                    @endif
+                </div>
                 <div class="font-extrabold text-slate-900 text-sm">{{ $order->customer?->company_name }}</div>
                 <div class="text-slate-600 mt-1 space-y-0.5">
-                    <p>Contact: {{ $order->customer?->contact_person }}</p>
-                    <p>Phone: {{ $order->customer?->phone }}</p>
+                    @if($order->notes && str_contains($order->notes, 'Walk-in Counter Buyer:'))
+                        <p class="font-bold text-slate-900 bg-cyan-50/80 p-1.5 rounded border border-cyan-200 text-[11px]">
+                            <i class="fa-solid fa-user-tag text-cyan-700 mr-1"></i>
+                            {{ explode(' | ', $order->notes)[0] }}
+                        </p>
+                    @else
+                        <p>Contact: {{ $order->customer?->contact_person }}</p>
+                        <p>Phone: {{ $order->customer?->phone }}</p>
+                    @endif
                     <p>{{ $order->customer?->address }}, {{ $order->customer?->city }}</p>
                     <p>Territory: {{ $order->customer?->territory }}</p>
                 </div>

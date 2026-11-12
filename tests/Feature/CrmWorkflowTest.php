@@ -389,4 +389,85 @@ class CrmWorkflowTest extends TestCase
         $responseCreate = $this->actingAs($agent)->get('/agents/create');
         $responseCreate->assertStatus(403);
     }
+
+    public function test_walk_in_customer_is_accessible_and_correctly_categorized(): void
+    {
+        $walkIn = Customer::getWalkInCustomer();
+
+        $this->assertEquals('CUST-WALKIN-HQ', $walkIn->customer_code);
+        $this->assertEquals('walk_in', $walkIn->category);
+        $this->assertEquals('Walk-In / Counter Sales', $walkIn->category_label);
+        $this->assertTrue($walkIn->isWalkIn());
+    }
+
+    public function test_quick_counter_sale_page_renders_with_walk_in_preset(): void
+    {
+        $lead = User::where('role', 'sales_manager')->first() ?? User::factory()->create(['role' => 'sales_manager']);
+
+        $response = $this->actingAs($lead)->get('/orders/create?walk_in=1');
+        $response->assertStatus(200);
+        $response->assertSee('Quick Counter Sale');
+        $response->assertSee('Walk-In Individual Buyer Details');
+        $response->assertSee('Instant Payment Received at Counter');
+    }
+
+    public function test_instant_counter_sale_books_order_deducts_stock_and_creates_confirmed_payment(): void
+    {
+        $lead = User::where('role', 'sales_manager')->first() ?? User::factory()->create(['role' => 'sales_manager']);
+        $walkIn = Customer::getWalkInCustomer();
+        $product = Product::where('is_active', true)->where('stock_quantity', '>', 5)->first();
+        $initialStock = $product->stock_quantity;
+
+        $orderNumber = 'ORD-TEST-WALKIN-' . time();
+
+        $response = $this->actingAs($lead)->post('/orders', [
+            'order_number' => $orderNumber,
+            'customer_id' => $walkIn->id,
+            'order_date' => Carbon::today()->toDateString(),
+            'walkin_buyer_name' => 'Engr. Taiwo Adeleke',
+            'walkin_buyer_phone' => '+234 803 999 8877',
+            'delivery_address' => 'Gbagada Showroom Counter Collection',
+            'instant_payment' => '1',
+            'payment_method' => 'pos_card',
+            'items' => [
+                [
+                    'product_id' => $product->id,
+                    'quantity' => 2,
+                    'unit_price' => $product->wholesale_price,
+                ],
+            ],
+            'notes' => 'Urgent site installation in Anthony Village',
+        ]);
+
+        $response->assertSessionHasNoErrors();
+
+        $order = Order::where('order_number', $orderNumber)->first();
+        $this->assertNotNull($order);
+        $response->assertRedirect('/orders/' . $order->id);
+
+        // Assert order is approved and fully paid immediately
+        $this->assertEquals('approved', $order->order_status);
+        $this->assertEquals('fully_paid', $order->payment_status);
+        $this->assertEquals($order->total_amount, $order->paid_amount);
+
+        // Assert inventory stock was decremented
+        $this->assertEquals($initialStock - 2, $product->fresh()->stock_quantity);
+
+        // Assert buyer info recorded in notes
+        $this->assertStringContainsString('Engr. Taiwo Adeleke', $order->notes);
+        $this->assertStringContainsString('+234 803 999 8877', $order->notes);
+
+        // Assert Payment record was automatically generated
+        $payment = Payment::where('order_id', $order->id)->first();
+        $this->assertNotNull($payment);
+        $this->assertEquals('pos_card', $payment->payment_method);
+        $this->assertEquals('confirmed', $payment->status);
+        $this->assertEquals($order->total_amount, $payment->amount);
+
+        // Assert order detail page renders with Walk-in badge
+        $showResponse = $this->actingAs($lead)->get('/orders/' . $order->id);
+        $showResponse->assertStatus(200);
+        $showResponse->assertSee('Walk-in Counter Sale');
+        $showResponse->assertSee('Engr. Taiwo Adeleke');
+    }
 }
