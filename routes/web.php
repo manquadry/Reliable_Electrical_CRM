@@ -28,19 +28,15 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Field Agent Directory & Profile
-    Route::prefix('agents')->name('agents.')->group(function () {
+    // Field Agent Management (Admin Only)
+    Route::prefix('agents')->name('agents.')->middleware('admin')->group(function () {
         Route::get('/', [FieldAgentController::class, 'index'])->name('index');
+        Route::get('/create', [FieldAgentController::class, 'create'])->name('create');
+        Route::post('/', [FieldAgentController::class, 'store'])->name('store');
         Route::get('/{agent}', [FieldAgentController::class, 'show'])->name('show')->whereNumber('agent');
-
-        // Admin Only: Onboarding & Management of Field Agents
-        Route::middleware('admin')->group(function () {
-            Route::get('/create', [FieldAgentController::class, 'create'])->name('create');
-            Route::post('/', [FieldAgentController::class, 'store'])->name('store');
-            Route::get('/{agent}/edit', [FieldAgentController::class, 'edit'])->name('edit');
-            Route::put('/{agent}', [FieldAgentController::class, 'update'])->name('update');
-            Route::delete('/{agent}', [FieldAgentController::class, 'destroy'])->name('destroy');
-        });
+        Route::get('/{agent}/edit', [FieldAgentController::class, 'edit'])->name('edit');
+        Route::put('/{agent}', [FieldAgentController::class, 'update'])->name('update');
+        Route::delete('/{agent}', [FieldAgentController::class, 'destroy'])->name('destroy');
     });
 
     // Customer Onboarding by Field Agent & Directory
@@ -56,12 +52,14 @@ Route::middleware('auth')->group(function () {
     // Reverse Geocoding API for GPS coordinates to address/landmark
     Route::get('/reverse-geocode', [ActivityController::class, 'reverseGeocode'])->name('reverse_geocode');
 
-    // Admin Date-by-Date Daily Activity Tracker & Reports
+    // Field Activity Operations & Daily Tracker
     Route::prefix('activities')->name('activities.')->group(function () {
         Route::get('/daily', [ActivityController::class, 'dailyTracker'])->name('daily');
-        Route::get('/report', [ActivityController::class, 'report'])->name('report');
         Route::get('/check-in', [ActivityController::class, 'createCheckIn'])->name('create_checkin');
         Route::post('/check-in', [ActivityController::class, 'storeCheckIn'])->name('store_checkin');
+
+        // Admin Only: Executive Reports & CSV Audit Export
+        Route::get('/report', [ActivityController::class, 'report'])->name('report')->middleware('admin');
     });
 
     // Sales Orders

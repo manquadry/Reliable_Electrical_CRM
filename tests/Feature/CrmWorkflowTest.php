@@ -277,4 +277,34 @@ class CrmWorkflowTest extends TestCase
         $response->assertRedirect();
         $this->assertEquals('delivered', $order->fresh()->order_status);
     }
+
+    public function test_admin_sees_executive_navigation_menus(): void
+    {
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get('/dashboard');
+        $response->assertStatus(200);
+        $response->assertSee('Daily Activity Tracker');
+        $response->assertSee('Field Executives');
+    }
+
+    public function test_field_agent_does_not_see_executive_menus(): void
+    {
+        $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+
+        $response = $this->actingAs($agent)->get('/dashboard');
+        $response->assertStatus(200);
+        $response->assertDontSee('Activity Reports & Audit');
+        $response->assertDontSee('Field Executives');
+        $response->assertSee('Log Field Check-In');
+        $response->assertSee('My Daily Schedule');
+    }
+
+    public function test_field_agent_cannot_access_executive_reports(): void
+    {
+        $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+
+        $response = $this->actingAs($agent)->get('/activities/report');
+        $response->assertStatus(403);
+    }
 }

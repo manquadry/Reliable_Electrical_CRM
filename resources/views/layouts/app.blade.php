@@ -109,74 +109,117 @@
                 <a href="{{ route('dashboard') }}" 
                    class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
                     <i class="fa-solid fa-gauge w-5 text-center mr-3 text-base {{ request()->routeIs('dashboard') ? 'text-white' : 'text-slate-400' }}"></i>
-                    Dashboard
+                    {{ Auth::user()->isAdmin() ? 'Executive Dashboard' : 'My Field Dashboard' }}
                 </a>
 
-                <!-- Core Activity & Tracker Section -->
-                <div class="pt-5 px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Field Operations</div>
-
-                <a href="{{ route('activities.daily') }}" 
-                   class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('activities.daily') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <i class="fa-solid fa-calendar-day w-5 text-center mr-3 text-base {{ request()->routeIs('activities.daily') ? 'text-white' : 'text-emerald-400' }}"></i>
-                    <div class="flex-1 flex items-center justify-between">
-                        <span>Daily Activity Tracker</span>
-                        <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono">By Date</span>
+                @if(Auth::user()->isAdmin())
+                    <!-- ================= ADMIN NAVIGATION ================= -->
+                    <div class="pt-5 px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-amber-400/90 flex items-center justify-between">
+                        <span>Field Operations</span>
+                        <span class="text-[9px] bg-amber-400/20 text-amber-300 px-1 py-0.2 rounded font-mono font-bold">ADMIN</span>
                     </div>
-                </a>
 
-                <a href="{{ route('activities.report') }}" 
-                   class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('activities.report') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <i class="fa-solid fa-chart-line w-5 text-center mr-3 text-base {{ request()->routeIs('activities.report') ? 'text-white' : 'text-blue-400' }}"></i>
-                    Activity Reports & Audit
-                </a>
+                    <a href="{{ route('activities.daily') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('activities.daily') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-calendar-day w-5 text-center mr-3 text-base {{ request()->routeIs('activities.daily') ? 'text-white' : 'text-emerald-400' }}"></i>
+                        <div class="flex-1 flex items-center justify-between">
+                            <span>Daily Activity Tracker</span>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono">By Date</span>
+                        </div>
+                    </a>
 
-                <a href="{{ route('activities.create_checkin') }}" 
-                   class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('activities.create_checkin') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <i class="fa-solid fa-location-dot w-5 text-center mr-3 text-base {{ request()->routeIs('activities.create_checkin') ? 'text-white' : 'text-amber-400' }}"></i>
-                    Log Field Check-In
-                </a>
+                    <a href="{{ route('activities.report') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('activities.report') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-chart-line w-5 text-center mr-3 text-base {{ request()->routeIs('activities.report') ? 'text-white' : 'text-blue-400' }}"></i>
+                        Activity Reports & Audit
+                    </a>
 
-                <!-- Onboarding & Directory Section -->
-                <div class="pt-5 px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Onboarding & Entities</div>
+                    <a href="{{ route('agents.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('agents.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-user-tie w-5 text-center mr-3 text-base {{ request()->routeIs('agents.*') ? 'text-white' : 'text-purple-400' }}"></i>
+                        <div class="flex-1 flex items-center justify-between">
+                            <span>Field Executives</span>
+                            <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">Team</span>
+                        </div>
+                    </a>
 
-                <a href="{{ route('agents.index') }}" 
-                   class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('agents.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <i class="fa-solid fa-user-tie w-5 text-center mr-3 text-base {{ request()->routeIs('agents.*') ? 'text-white' : 'text-purple-400' }}"></i>
-                    <div class="flex-1 flex items-center justify-between">
-                        <span>Field Executives</span>
-                        <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">Agents</span>
+                    <div class="pt-5 px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Distribution Network</div>
+
+                    <a href="{{ route('customers.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('customers.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-shop w-5 text-center mr-3 text-base {{ request()->routeIs('customers.*') ? 'text-white' : 'text-cyan-400' }}"></i>
+                        <div class="flex-1 flex items-center justify-between">
+                            <span>Customers & Stores</span>
+                            <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">All Lagos</span>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('orders.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('orders.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-file-invoice-dollar w-5 text-center mr-3 text-base {{ request()->routeIs('orders.*') ? 'text-white' : 'text-emerald-400' }}"></i>
+                        Sales Orders & Waybills
+                    </a>
+
+                    <a href="{{ route('payments.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('payments.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-money-bill-wave w-5 text-center mr-3 text-base {{ request()->routeIs('payments.*') ? 'text-white' : 'text-green-400' }}"></i>
+                        Collections & Receipts
+                    </a>
+
+                    <a href="{{ route('products.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('products.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-boxes-stacked w-5 text-center mr-3 text-base {{ request()->routeIs('products.*') ? 'text-white' : 'text-yellow-400' }}"></i>
+                        Products & Inventory
+                    </a>
+
+                @else
+                    <!-- ================= FIELD SALES AGENT NAVIGATION ================= -->
+                    <div class="pt-5 px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-emerald-400/90 flex items-center justify-between">
+                        <span>My Field Work</span>
+                        <span class="text-[9px] bg-emerald-400/20 text-emerald-300 px-1 py-0.2 rounded font-mono font-bold">FIELD</span>
                     </div>
-                </a>
 
-                <a href="{{ route('customers.index') }}" 
-                   class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('customers.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <i class="fa-solid fa-shop w-5 text-center mr-3 text-base {{ request()->routeIs('customers.*') ? 'text-white' : 'text-cyan-400' }}"></i>
-                    <div class="flex-1 flex items-center justify-between">
-                        <span>Customers & Stores</span>
-                        <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">Onboarded</span>
-                    </div>
-                </a>
+                    <a href="{{ route('activities.create_checkin') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('activities.create_checkin') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-location-crosshairs w-5 text-center mr-3 text-base {{ request()->routeIs('activities.create_checkin') ? 'text-white' : 'text-amber-400' }}"></i>
+                        Log Field Check-In
+                    </a>
 
-                <!-- Commercial Section -->
-                <div class="pt-5 px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Commercial & Sales</div>
+                    <a href="{{ route('activities.daily') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('activities.daily') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-calendar-day w-5 text-center mr-3 text-base {{ request()->routeIs('activities.daily') ? 'text-white' : 'text-emerald-400' }}"></i>
+                        My Daily Schedule
+                    </a>
 
-                <a href="{{ route('orders.index') }}" 
-                   class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('orders.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <i class="fa-solid fa-file-invoice-dollar w-5 text-center mr-3 text-base {{ request()->routeIs('orders.*') ? 'text-white' : 'text-emerald-400' }}"></i>
-                    Sales Orders & Waybills
-                </a>
+                    <div class="pt-5 px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">My Territory & Clients</div>
 
-                <a href="{{ route('payments.index') }}" 
-                   class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('payments.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <i class="fa-solid fa-money-bill-wave w-5 text-center mr-3 text-base {{ request()->routeIs('payments.*') ? 'text-white' : 'text-green-400' }}"></i>
-                    Collections & Receipts
-                </a>
+                    <a href="{{ route('customers.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('customers.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-shop w-5 text-center mr-3 text-base {{ request()->routeIs('customers.*') ? 'text-white' : 'text-cyan-400' }}"></i>
+                        <div class="flex-1 flex items-center justify-between">
+                            <span>My Stores & Clients</span>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono">Active</span>
+                        </div>
+                    </a>
 
-                <a href="{{ route('products.index') }}" 
-                   class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('products.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <i class="fa-solid fa-boxes-stacked w-5 text-center mr-3 text-base {{ request()->routeIs('products.*') ? 'text-white' : 'text-yellow-400' }}"></i>
-                    Products & Inventory
-                </a>
+                    <a href="{{ route('orders.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('orders.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-file-invoice-dollar w-5 text-center mr-3 text-base {{ request()->routeIs('orders.*') ? 'text-white' : 'text-emerald-400' }}"></i>
+                        My Sales Orders
+                    </a>
+
+                    <a href="{{ route('payments.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('payments.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-money-bill-wave w-5 text-center mr-3 text-base {{ request()->routeIs('payments.*') ? 'text-white' : 'text-green-400' }}"></i>
+                        My Collections
+                    </a>
+
+                    <a href="{{ route('products.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('products.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-boxes-stacked w-5 text-center mr-3 text-base {{ request()->routeIs('products.*') ? 'text-white' : 'text-yellow-400' }}"></i>
+                        Product Catalog & Stock
+                    </a>
+                @endif
             </nav>
 
             <!-- User Footer Profile -->
