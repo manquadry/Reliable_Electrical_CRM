@@ -18,6 +18,7 @@
 | Stakeholder / Persona | Name | Email | Code | Assigned Territory |
 | :--- | :--- | :--- | :--- | :--- |
 | **Executive Admin (MD)** | Engr. Adekunle Lawal | `admin@reliableelectrics.ng` | `HQ-ADM-01` | Headquarters — Lagos Operations |
+| **Field Sales Lead (HOD)** | Mrs. Funke Williams | `lead@reliableelectrics.ng` | `REL-HOD-01` | Greater Lagos Commercial Operations |
 | **Field Executive (Ikeja)** | Chinedu Okeke | `chinedu@reliableelectrics.ng` | `REL-FE-101` | Ikeja, Alausa & Oregun Hub |
 | **Field Executive (Island)**| Fatima Bello | `fatima@reliableelectrics.ng` | `REL-FE-102` | Lekki Phase 1, VI & Ikoyi |
 | **Field Executive (Alaba)** | Emeka Nnamdi | `emeka@reliableelectrics.ng` | `REL-FE-103` | Alaba Int'l & Trade Fair |
@@ -31,6 +32,7 @@
 flowchart TD
     subgraph HQ["Reliable Electrics HQ (Gbagada, Lagos)"]
         Admin["Executive Admin / Managing Director<br/>(Engr. Adekunle Lawal)"]
+        Lead["Field Sales Lead / Head of Dept (HOD)<br/>(Mrs. Funke Williams)"]
     end
 
     subgraph Field["Field Sales Operations (Lagos Corridors)"]
@@ -46,14 +48,15 @@ flowchart TD
         C3["Building & Electrical Contractors<br/>(Ikeja, Mainland)"]
     end
 
-    Admin -->|"1. Onboards & Assigns Target/Vehicle"| Field
-    Admin -->|"2. Audits Daily Date-by-Date Activities"| Field
-    Admin -->|"3. Approves Credit Terms & Dispatches Waybills"| Clients
-    Field -->|"4. Physical Visit & GPS Check-In"| Clients
-    Field -->|"5. Onboards Retail Store into CRM"| Clients
-    Field -->|"6. Books Purchase Order on the Spot"| Clients
-    Field -->|"7. Logs Payment / Bank Transfer"| Clients
-    Clients -->|"8. Revenue & Stock Turnover"| HQ
+    Admin -->|"1. Strategic Quotas & Corporate Governance"| Lead
+    Lead -->|"2. Onboards Field Agents & Sets Route Targets/Vehicles"| Field
+    Lead -->|"3. Supervises Daily Visits, GPS & Route Compliance"| Field
+    Lead -->|"4. Audits Team Performance Scorecards & Approves Orders"| Field
+    Field -->|"5. Physical Visit & GPS Check-In"| Clients
+    Field -->|"6. Onboards Retail Store into CRM"| Clients
+    Field -->|"7. Books Purchase Order on the Spot"| Clients
+    Field -->|"8. Logs Payment / Bank Transfer"| Clients
+    Clients -->|"9. Commercial Revenue & Stock Turnover"| HQ
 ```
 
 ---
@@ -140,7 +143,80 @@ flowchart TD
 
 ---
 
-## 4. Stakeholder 2: Field Sales Executives
+## 4. Stakeholder 2: Field Sales Lead / Head of Department (HOD)
+
+### Primary Persona
+* **Name**: Mrs. Funke Williams
+* **Role**: Head of Field Sales & Department Lead
+* **Email**: `lead@reliableelectrics.ng`
+* **Access Level**: Field Operations Management & Team Supervision
+
+### Core Objectives
+1. Supervise field sales executives across all Lagos commercial corridors (Ikeja, Alaba, Lekki, Mainland).
+2. Onboard new field sales executives into the team, assigning territories, revenue quotas, visit targets, and company motorbikes/vehicles.
+3. Monitor daily agent performance, visit logs, and GPS route compliance date-by-date.
+4. Audit team performance scorecards, completion rates, and customer onboarding velocity.
+5. Approve and dispatch field sales orders, monitor collections, and assist field agents with key accounts.
+
+### Step-by-Step Demo Actions for Field Sales Lead (HOD)
+
+#### Action 1: Team Leadership Dashboard
+* **Route**: `/dashboard` (logged in as `Mrs. Funke Williams`)
+* **What to inspect**:
+  - Banner: *"Reliable Electrics Nigeria Limited • Department of Field Sales & Distribution"*.
+  - Department field metrics: Active field reps, monthly new customer onboarding count, today's team visit total, month-to-date sales orders, and collections.
+  - **Live Field Agent Leaderboard**: Real-time table displaying today's visit compliance vs daily target for each agent, monthly store onboards, and revenue attainment percentage.
+  - Direct 1-click management shortcuts: **Date-by-Date Tracker**, **Onboard Agent**, and **Team Reports**.
+
+#### Action 2: Onboard a New Field Sales Executive
+* **Route**: `/agents/create`
+* **How to demo**:
+  1. Click **Onboard Agent** on the leadership dashboard or navigation menu.
+  2. Enter new field executive details:
+     - **Full Name**: e.g., `Babatunde Fashola`
+     - **Corporate Email**: `babatunde.fashola@reliableelectrics.ng`
+     - **Agent Code**: Auto-suggested (e.g., `REL-FE-105`)
+     - **Mobile Phone**: `+234 803 777 6655`
+     - **Assigned Territory**: `Ikorodu Commercial Belt & Hardware Markets`
+     - **Assigned Vehicle**: `Company Motorbike (Bajaj Boxer)`
+     - **Monthly Revenue Target**: `₦5,000,000`
+     - **Daily Visit Target**: `7 visits/day`
+     - **Monthly Onboard Target**: `15 stores`
+     - **Onboarded Date**: Today's date
+  3. Click **Complete Field Executive Onboarding**.
+  4. Notice the system automatically records `Mrs. Funke Williams` as the onboarding supervisor, creates the credentials, and redirects to the agent's performance profile.
+
+#### Action 3: Inspect Individual Field Agent Performance Drill-Down
+* **Route**: `/agents/{agent}` (e.g. click on `Chinedu Okeke`)
+* **What to inspect**:
+  - Individual agent scorecard: Today's visits count, daily compliance %, monthly revenue vs target, and stores onboarded.
+  - Recent GPS Check-in history with exact time and physical street address.
+  - Full list of stores onboarded by this agent and their order history.
+  - Click **Edit Profile** to update the agent's assigned territory, targets, or vehicle.
+
+#### Action 4: Date-by-Date Field Activity Tracker
+* **Route**: `/activities/daily`
+* **What to inspect**:
+  - Filter by date (Today, Yesterday, or any custom date).
+  - Inspection cards for all field agents: see at a glance who met their daily visit quota.
+  - Timeline of store visits, check-in timestamps, GPS coordinates, meeting notes, and payment collections.
+
+#### Action 5: Team Performance Scorecards & CSV Audit
+* **Route**: `/activities/report`
+* **What to inspect**:
+  - Performance Scorecards for all field agents: Visits count, stores onboarded, orders booked, total revenue, and collections within any chosen date range.
+  - Click **Export CSV** to download the team performance audit for weekly management meetings.
+
+#### Action 6: Approve Sales Orders & Monitor Field Collections
+* **Route**: `/orders` & `/payments`
+* **What to inspect**:
+  - Review orders booked by field agents across Lagos stores.
+  - Open any order (e.g. `ORD-2026-0083`) and click **Update Order Status** (Pending Approval &rarr; Approved &rarr; Dispatched).
+  - Track real-time collections and bank transfer reference notes logged from the field.
+
+---
+
+## 5. Stakeholder 3: Field Sales Executives
 
 ### Primary Personas
 * **Chinedu Okeke** (`chinedu@reliableelectrics.ng`) — Ikeja, Alausa & Oregun Commercial Hub
@@ -226,7 +302,7 @@ flowchart TD
 
 ---
 
-## 5. Stakeholder 3: Customer / Retail Store Owner
+## 6. Stakeholder 4: Customer / Retail Store Owner
 
 ### Profile
 * **Example**: Chief Innocent Okoli (`God's Grace Electrical Wholesalers`, Alaba Market)
@@ -243,34 +319,40 @@ flowchart TD
 
 ---
 
-## 6. End-to-End Demo Script (10-Minute Walkthrough)
+## 7. End-to-End Demo Script (10-Minute Walkthrough)
 
-To present this application to an audience, follow this sequential 7-step narrative:
+To present this application to an audience, follow this sequential 8-step narrative:
 
 ```
 Step 1: Open Live Application (https://crm-web-production-a3173e81.up.railway.app/login)
-        ↳ Explain the 1-click Quick-Login demo switcher.
+        ↳ Explain the 1-click Quick-Login demo switcher with 3 distinct stakeholder tiers.
 
-Step 2: Log in as Admin (Engr. Adekunle Lawal)
+Step 2: Log in as Executive Admin (Engr. Adekunle Lawal)
         ↳ Showcase Executive Dashboard: Lagos revenue target attainment, top field agents, territory chart.
 
-Step 3: Open Date-by-Date Daily Tracker (/activities/daily)
-        ↳ Pick today's date.
-        ↳ Show how management can see exactly what each of the 4 field agents did today (visits, orders, check-in GPS).
+Step 3: Switch to Field Sales Lead / HOD (Mrs. Funke Williams)
+        ↳ Showcase Field Operations & Team Leadership Dashboard.
+        ↳ Demonstrate onboarding a new field sales executive (/agents/create) with territory, quota, and vehicle.
+        ↳ Inspect individual field agent performance drill-down and scorecards (/agents).
 
-Step 4: Switch to Field Executive (Chinedu Okeke - Ikeja Hub)
+Step 4: Open Date-by-Date Daily Tracker (/activities/daily)
+        ↳ Pick today's date.
+        ↳ Show how leadership audits what each field agent did today (visits, orders, check-in GPS).
+
+Step 5: Switch to Field Executive (Chinedu Okeke - Ikeja Hub)
         ↳ Demonstrate mobile-responsive UI with bottom navigation bar.
         ↳ Perform a live Check-In (/activities/check-in) with GPS location capture.
 
-Step 5: Onboard a New Customer in the Field (/customers/create)
+Step 6: Onboard a New Customer in the Field (/customers/create)
         ↳ Register a new electrical shop, set credit limit, payment terms, and capture store GPS.
         ↳ Notice the onboarding date and agent attribution.
 
-Step 6: Book a Purchase Order on the Spot (/orders/create)
+Step 7: Book a Purchase Order on the Spot (/orders/create)
         ↳ Add floodlights and distribution boards, calculate totals, and create order.
         ↳ Show the branded, printable Waybill / Delivery Note.
 
-Step 7: Switch back to Admin to verify live audit update
+Step 8: Switch back to Field Sales Lead to approve order & verify live audit
+        ↳ Approve the pending field order (/orders).
         ↳ Refresh the Daily Tracker: the new check-in, customer onboarding, and order immediately show up on today's audit!
         ↳ Demonstrate 1-click Export to CSV (/activities/report).
 ```

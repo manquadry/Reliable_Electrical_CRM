@@ -91,13 +91,19 @@
             <!-- Role Badge Banner -->
             <div class="px-5 py-3 bg-slate-800/40 border-b border-slate-800/60 flex items-center justify-between">
                 <div class="flex items-center space-x-2">
-                    <span class="w-2 h-2 rounded-full {{ Auth::user()->isAdmin() ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400' }}"></span>
+                    <span class="w-2 h-2 rounded-full {{ Auth::user()->isAdmin() ? 'bg-amber-400 animate-pulse' : (Auth::user()->isSalesManager() ? 'bg-indigo-400 animate-pulse' : 'bg-emerald-400') }}"></span>
                     <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                        {{ Auth::user()->isAdmin() ? 'Administrator' : 'Field Sales Rep' }}
+                        @if(Auth::user()->isAdmin())
+                            Executive Admin
+                        @elseif(Auth::user()->isSalesManager())
+                            Field Sales Lead (HOD)
+                        @else
+                            Field Sales Rep
+                        @endif
                     </span>
                 </div>
-                <span class="text-[11px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">
-                    {{ Auth::user()->agent_code ?: 'HQ' }}
+                <span class="text-[11px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700 font-mono">
+                    {{ Auth::user()->agent_code ?: (Auth::user()->isAdmin() ? 'HQ' : 'LEAD') }}
                 </span>
             </div>
 
@@ -109,7 +115,13 @@
                 <a href="{{ route('dashboard') }}" 
                    class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
                     <i class="fa-solid fa-gauge w-5 text-center mr-3 text-base {{ request()->routeIs('dashboard') ? 'text-white' : 'text-slate-400' }}"></i>
-                    {{ Auth::user()->isAdmin() ? 'Executive Dashboard' : 'My Field Dashboard' }}
+                    @if(Auth::user()->isAdmin())
+                        Executive Dashboard
+                    @elseif(Auth::user()->isSalesManager())
+                        Team Leadership Dashboard
+                    @else
+                        My Field Dashboard
+                    @endif
                 </a>
 
                 @if(Auth::user()->isAdmin())
@@ -170,6 +182,75 @@
                        class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('products.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
                         <i class="fa-solid fa-boxes-stacked w-5 text-center mr-3 text-base {{ request()->routeIs('products.*') ? 'text-white' : 'text-yellow-400' }}"></i>
                         Products & Inventory
+                    </a>
+
+                @elseif(Auth::user()->isSalesManager())
+                    <!-- ================= FIELD SALES LEAD / HOD NAVIGATION ================= -->
+                    <div class="pt-5 px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-indigo-400/90 flex items-center justify-between">
+                        <span>Field Team Management</span>
+                        <span class="text-[9px] bg-indigo-400/20 text-indigo-300 px-1.5 py-0.5 rounded font-mono font-bold">HOD / LEAD</span>
+                    </div>
+
+                    <a href="{{ route('activities.daily') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('activities.daily') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-calendar-day w-5 text-center mr-3 text-base {{ request()->routeIs('activities.daily') ? 'text-white' : 'text-emerald-400' }}"></i>
+                        <div class="flex-1 flex items-center justify-between">
+                            <span>Daily Activity Tracker</span>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono">Date Audit</span>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('activities.report') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('activities.report') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-chart-line w-5 text-center mr-3 text-base {{ request()->routeIs('activities.report') ? 'text-white' : 'text-blue-400' }}"></i>
+                        Team Performance & Audit
+                    </a>
+
+                    <a href="{{ route('agents.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('agents.index') || request()->routeIs('agents.show') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-users-gear w-5 text-center mr-3 text-base {{ request()->routeIs('agents.index') ? 'text-white' : 'text-indigo-400' }}"></i>
+                        <div class="flex-1 flex items-center justify-between">
+                            <span>Field Executives</span>
+                            <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">Team</span>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('agents.create') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('agents.create') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-user-plus w-5 text-center mr-3 text-base {{ request()->routeIs('agents.create') ? 'text-white' : 'text-amber-400' }}"></i>
+                        <div class="flex-1 flex items-center justify-between">
+                            <span>Onboard New Agent</span>
+                            <span class="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-mono">+ Add</span>
+                        </div>
+                    </a>
+
+                    <div class="pt-5 px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Territory & Operations</div>
+
+                    <a href="{{ route('customers.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('customers.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-shop w-5 text-center mr-3 text-base {{ request()->routeIs('customers.*') ? 'text-white' : 'text-cyan-400' }}"></i>
+                        <div class="flex-1 flex items-center justify-between">
+                            <span>Customers & Stores</span>
+                            <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">All Lagos</span>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('orders.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('orders.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-file-invoice-dollar w-5 text-center mr-3 text-base {{ request()->routeIs('orders.*') ? 'text-white' : 'text-emerald-400' }}"></i>
+                        Sales Orders & Waybills
+                    </a>
+
+                    <a href="{{ route('payments.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('payments.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-money-bill-wave w-5 text-center mr-3 text-base {{ request()->routeIs('payments.*') ? 'text-white' : 'text-green-400' }}"></i>
+                        Collections & Receipts
+                    </a>
+
+                    <a href="{{ route('products.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg font-medium transition-colors {{ request()->routeIs('products.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                        <i class="fa-solid fa-boxes-stacked w-5 text-center mr-3 text-base {{ request()->routeIs('products.*') ? 'text-white' : 'text-yellow-400' }}"></i>
+                        Product Catalog & Stock
                     </a>
 
                 @else
@@ -288,17 +369,17 @@
                                 </div>
                                 <div class="py-1">
                                     @php
-                                        $switchUsers = \App\Models\User::orderByRaw("CASE WHEN role = 'admin' THEN 1 ELSE 2 END")->orderBy('id')->get();
+                                        $switchUsers = \App\Models\User::orderByRaw("CASE WHEN role = 'admin' THEN 1 WHEN role = 'sales_manager' THEN 2 ELSE 3 END")->orderBy('id')->get();
                                     @endphp
                                     @foreach($switchUsers as $su)
                                         <a href="{{ route('quick-login', $su) }}" 
                                            class="flex items-center justify-between px-3 py-2 text-xs hover:bg-blue-50 {{ $su->id === Auth::id() ? 'bg-blue-50/60 font-semibold text-blue-700' : 'text-slate-700' }}">
                                             <div class="flex items-center space-x-2 truncate">
-                                                <span class="w-2 h-2 rounded-full {{ $su->isAdmin() ? 'bg-amber-400' : 'bg-emerald-400' }}"></span>
+                                                <span class="w-2 h-2 rounded-full {{ $su->isAdmin() ? 'bg-amber-400' : ($su->isSalesManager() ? 'bg-indigo-500' : 'bg-emerald-400') }}"></span>
                                                 <span class="truncate">{{ $su->name }}</span>
                                             </div>
-                                            <span class="text-[10px] text-slate-400 shrink-0 ml-2">
-                                                {{ $su->agent_code ?: 'Admin' }}
+                                            <span class="text-[10px] text-slate-400 shrink-0 ml-2 font-mono">
+                                                {{ $su->agent_code ?: ($su->isAdmin() ? 'Admin' : 'HOD') }}
                                             </span>
                                         </a>
                                     @endforeach

@@ -302,6 +302,16 @@
             display: inline-block;
         }
 
+        .tag-lead {
+            background-color: #ede9fe;
+            color: #6d28d9;
+            font-size: 7pt;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
         .tag-field {
             background-color: #d1fae5;
             color: #047857;
@@ -387,6 +397,13 @@
                     <td>HQ Operations & Lagos State Wide</td>
                 </tr>
                 <tr>
+                    <td><span class="tag-lead">Field Sales Lead (HOD)</span></td>
+                    <td><strong>Mrs. Funke Williams</strong></td>
+                    <td><code class="mono">lead@reliableelectrics.ng</code></td>
+                    <td><code class="mono">REL-HOD-01</code></td>
+                    <td>Greater Lagos Commercial Operations</td>
+                </tr>
+                <tr>
                     <td><span class="tag-field">Field Executive</span></td>
                     <td><strong>Chinedu Okeke</strong></td>
                     <td><code class="mono">chinedu@reliableelectrics.ng</code></td>
@@ -434,6 +451,11 @@
                 <td><strong>Executive Management / Admin</strong></td>
                 <td>Distribution strategy, sales target governance, territory allocation, daily auditing of field teams, credit approval, and dispatch logistics.</td>
                 <td>Executive Dashboard, Date-by-Date Daily Tracker, Agent Onboarding, Customer Directory, Orders & Waybills, CSV Reports.</td>
+            </tr>
+            <tr>
+                <td><strong>Field Sales Lead (HOD)</strong></td>
+                <td>Departmental team oversight, onboarding new field reps, setting route targets and vehicles, daily visit auditing, performance scorecards, and order status approvals.</td>
+                <td>Team Leadership Dashboard, Agent Onboarding (<code class="mono">/agents/create</code>), Agent Profile Drill-Down, Date-by-Date Tracker, Team Reports, Order Status Approvals.</td>
             </tr>
             <tr>
                 <td><strong>Field Sales Executives</strong></td>
@@ -539,7 +561,84 @@
         <strong>Key Management Decision Point:</strong> The Date-by-Date Daily Tracker solves field opacity. Executive management can verify whether a field executive was physically present at Alaba or Ikeja at the reported time via the GPS link and corresponding order booking timestamp.
     </div>
 
-    <!-- ==================== PAGE 3 ==================== -->
+    <!-- ==================== PAGE: FIELD SALES LEAD (HOD) ==================== -->
+    <div class="page-break"></div>
+
+    <div class="header">
+        <div class="header-brand">
+            <h1>Reliable Electrics Nigeria Limited</h1>
+            <div class="subtitle">Field Sales Lead / Head of Department (HOD) Workflows</div>
+        </div>
+        <div class="header-tag">
+            <span class="tag-lead" style="font-size: 8pt; padding: 4px 8px;">Role: Field Sales Lead (HOD)</span>
+        </div>
+    </div>
+
+    <h2>4. Field Sales Lead (HOD) Supervision & Team Operations</h2>
+    <p>The Field Sales Lead / HOD (Mrs. Funke Williams) oversees field executives across all commercial corridors in Lagos, drives quota attainment, onboards new agents, and verifies daily physical presence.</p>
+
+    <div class="step-container">
+        <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-content">
+                <div class="step-title">Team Leadership Dashboard & Real-Time Leaderboard (<code class="mono">/dashboard</code>)</div>
+                <div class="step-desc">Personalized command view displaying department KPIs: Active field reps, new stores onboarded this month, team visits completed today, and live revenue target percentage. Features an interactive agent leaderboard showing today's visit compliance vs target for each rep.</div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-content">
+                <div class="step-title">Onboard a New Field Sales Representative (<code class="mono">/agents/create</code>)</div>
+                <div class="step-desc">Recruit and onboard new field agents into the department:
+                    <ul style="margin-left: 16px; margin-top: 3px; font-size: 8pt;">
+                        <li>Assigns auto-generated agent code (e.g. <code class="mono">REL-FE-105</code>), corporate email, and phone.</li>
+                        <li>Configures sales territory (e.g. Ikorodu, Badagry, Epe), vehicle type (Company Motorbike / Field Sedan).</li>
+                        <li>Sets monthly revenue quota, daily visit target (e.g. 7 visits/day), and store onboarding target.</li>
+                        <li>Automatically stamps the HOD as the onboarding supervisor in the audit ledger.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-content">
+                <div class="step-title">Individual Agent Performance Drill-Down (<code class="mono">/agents/{id}</code>)</div>
+                <div class="step-desc">Click into any field rep (e.g. Chinedu Okeke) to inspect their complete scorecard: visit progress, revenue generated, list of retail stores onboarded, and chronological check-in GPS log. Click <strong>Edit Profile</strong> to reassign territories or adjust quotas.</div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-content">
+                <div class="step-title">Date-by-Date Field Activity Auditing (<code class="mono">/activities/daily</code>)</div>
+                <div class="step-desc">Audit field team movements on any selected date. Inspect check-in times, auto-resolved physical street landmarks, meeting purpose notes, orders booked, and payments collected on that specific day.</div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-num">5</div>
+            <div class="step-content">
+                <div class="step-title">Team Performance Scorecards & CSV Audit Export (<code class="mono">/activities/report</code>)</div>
+                <div class="step-desc">Review aggregate and agent-by-agent scorecards across custom periods. Compare visits, onboards, orders, revenue, and collection efficiency. Export full reports to CSV for weekly commercial review meetings.</div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-num">6</div>
+            <div class="step-content">
+                <div class="step-title">Order Status Approval & Payment Collection Tracking (<code class="mono">/orders</code> &amp; <code class="mono">/payments</code>)</div>
+                <div class="step-desc">Review sales orders booked by reps across Lagos. Update order statuses (<code class="mono">Pending Approval</code> &rarr; <code class="mono">Approved</code> &rarr; <code class="mono">Dispatched</code>). Verify payment references and bank transfer alerts logged by agents.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="callout-blue">
+        <strong>Management Empowerment:</strong> The Lead/HOD tier bridges top executive strategy and field execution, giving department heads the administrative autonomy to onboard agents and manage territory sales without requiring developer or system admin intervention.
+    </div>
+
+    <!-- ==================== PAGE: FIELD SALES AGENT ==================== -->
     <div class="page-break"></div>
 
     <div class="header">
@@ -552,7 +651,7 @@
         </div>
     </div>
 
-    <h2>4. Field Sales Executive Workflows</h2>
+    <h2>5. Field Sales Executive Workflows</h2>
     <p>Field agents use mobile smartphones and tablets on the road to register storefronts, check in, and close deals.</p>
 
     <div class="step-container">
@@ -628,7 +727,7 @@
         </div>
     </div>
 
-    <h2>5. Recommended 10-Minute Demonstration Script</h2>
+    <h2>6. Recommended 10-Minute Demonstration Script</h2>
     <p>Follow this exact chronological sequence to showcase the system to executive stakeholders or prospective clients:</p>
 
     <table>
@@ -643,44 +742,49 @@
             <tr>
                 <td><strong>0:00 - 1:30</strong></td>
                 <td><strong>1. Landing & Role Switcher</strong><br/><code class="mono">/login</code></td>
-                <td>Show the 1-click Quick-Login switcher. Explain that Reliable Electrics operates a dual structure: Executive Management at Gbagada HQ and Field Sales Agents across Lagos commercial hubs.</td>
+                <td>Show the 1-click Quick-Login switcher with 3 distinct stakeholder tiers: Executive Admin (Managing Director), Field Sales Lead (HOD), and Field Sales Representatives across Lagos commercial hubs.</td>
             </tr>
             <tr>
-                <td><strong>1:30 - 3:30</strong></td>
+                <td><strong>1:30 - 3:00</strong></td>
                 <td><strong>2. Executive Dashboard</strong><br/><code class="mono">/dashboard</code> (Admin)</td>
                 <td>Log in as Admin (Engr. Adekunle Lawal). Highlight Lagos monthly target (₦50M), quota pacing, active field agents count, territory distribution chart, and the top performing agent leaderboard.</td>
             </tr>
             <tr>
-                <td><strong>3:30 - 5:30</strong></td>
-                <td><strong>3. Date-by-Date Daily Tracker</strong><br/><code class="mono">/activities/daily</code></td>
-                <td>Pick today's date on the interactive calendar. Show how management sees every agent's activities for that specific day: visits, orders booked, payments collected. Click a GPS link to show Google Maps verification.</td>
+                <td><strong>3:00 - 4:30</strong></td>
+                <td><strong>3. Field Sales Lead / HOD</strong><br/><code class="mono">/dashboard</code> (Lead)</td>
+                <td>Switch to Mrs. Funke Williams. Showcase the Department Leadership view. Demonstrate onboarding a new field sales rep (<code class="mono">/agents/create</code>) with territory, quota, and vehicle assignment, and inspect agent drill-down scorecards.</td>
             </tr>
             <tr>
-                <td><strong>5:30 - 7:00</strong></td>
-                <td><strong>4. Switch to Field Agent</strong><br/><code class="mono">/activities/check-in</code></td>
+                <td><strong>4:30 - 6:00</strong></td>
+                <td><strong>4. Date-by-Date Daily Tracker</strong><br/><code class="mono">/activities/daily</code></td>
+                <td>Pick today's date on the interactive calendar. Show how leadership audits every agent's activities for that specific day: visits, orders booked, payments collected. Show reverse geocoded street landmark.</td>
+            </tr>
+            <tr>
+                <td><strong>6:00 - 7:30</strong></td>
+                <td><strong>5. Field Agent & Check-In</strong><br/><code class="mono">/activities/check-in</code></td>
                 <td>Switch to Chinedu Okeke (Ikeja Hub). Demonstrate mobile view. Conduct a live Check-In: select customer, select "Routine Sales Visit", tap "Capture GPS", enter notes, and submit.</td>
             </tr>
             <tr>
-                <td><strong>7:00 - 8:30</strong></td>
-                <td><strong>5. Onboard New Customer</strong><br/><code class="mono">/customers/create</code></td>
+                <td><strong>7:30 - 8:30</strong></td>
+                <td><strong>6. Onboard New Customer</strong><br/><code class="mono">/customers/create</code></td>
                 <td>Fill in a new store (e.g., "Apex Power Solutions, Alausa"), capture GPS, set credit limit and payment terms. Submit and show that the customer is immediately added with today's onboarding date.</td>
             </tr>
             <tr>
                 <td><strong>8:30 - 9:30</strong></td>
-                <td><strong>6. Order Booking & Waybill</strong><br/><code class="mono">/orders/create</code></td>
+                <td><strong>7. Order Booking & Waybill</strong><br/><code class="mono">/orders/create</code></td>
                 <td>Create an order for 20x 50W LED floodlights and 5x distribution boards. Open the order and click <strong>Print Waybill</strong> to reveal the print-ready warehouse dispatch document with signature lines.</td>
             </tr>
             <tr>
                 <td><strong>9:30 - 10:00</strong></td>
-                <td><strong>7. Verification & CSV Export</strong><br/><code class="mono">/activities/report</code></td>
-                <td>Switch back to Admin. Refresh the Daily Tracker to prove the new check-in and order appeared live. Click <strong>Export CSV</strong> to demonstrate automated management reporting.</td>
+                <td><strong>8. Verification & CSV Export</strong><br/><code class="mono">/activities/report</code></td>
+                <td>Switch back to Field Sales Lead. Approve the pending order. Refresh the Daily Tracker to prove the new check-in and order appeared live. Click <strong>Export CSV</strong> to demonstrate automated reporting.</td>
             </tr>
         </tbody>
     </table>
 
     <div class="doc-footer">
         <div>Reliable Electrics Nigeria Limited • Phase 1, 32B Oguntona Crescent, Gbagada, Lagos</div>
-        <div>Official Enterprise CRM Demo Guide • Page 4 of 4</div>
+        <div>Official Enterprise CRM Demo Guide • Page 5 of 5</div>
     </div>
 
 </body>

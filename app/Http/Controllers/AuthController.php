@@ -16,7 +16,7 @@ class AuthController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $demoUsers = User::orderByRaw("CASE WHEN role = 'admin' THEN 1 ELSE 2 END")
+        $demoUsers = User::orderByRaw("CASE WHEN role = 'admin' THEN 1 WHEN role = 'sales_manager' THEN 2 ELSE 3 END")
             ->orderBy('id')
             ->take(6)
             ->get();

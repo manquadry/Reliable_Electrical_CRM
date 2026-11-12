@@ -307,4 +307,86 @@ class CrmWorkflowTest extends TestCase
         $response = $this->actingAs($agent)->get('/activities/report');
         $response->assertStatus(403);
     }
+
+    public function test_sales_lead_can_access_leadership_dashboard_and_menus(): void
+    {
+        $lead = User::where('role', 'sales_manager')->first() ?? User::factory()->create(['role' => 'sales_manager']);
+
+        $response = $this->actingAs($lead)->get('/dashboard');
+        $response->assertStatus(200);
+        $response->assertSee('Team Leadership Dashboard');
+        $response->assertSee('Daily Activity Tracker');
+        $response->assertSee('Team Performance & Audit', false);
+        $response->assertSee('Onboard New Agent');
+    }
+
+    public function test_sales_lead_can_onboard_new_field_agent(): void
+    {
+        $lead = User::where('role', 'sales_manager')->first() ?? User::factory()->create(['role' => 'sales_manager']);
+
+        $newAgentData = [
+            'name' => 'Babatunde Fashola',
+            'email' => 'babatunde.fashola@reliableelectrics.ng',
+            'password' => 'secret123',
+            'agent_code' => 'REL-FE-777',
+            'phone' => '+234 803 777 6655',
+            'territory' => 'Ikorodu Commercial Belt',
+            'vehicle_type' => 'Company Motorbike',
+            'monthly_revenue_target' => 5000000.00,
+            'daily_visit_target' => 7,
+            'monthly_onboard_target' => 15,
+            'onboarded_date' => Carbon::today()->toDateString(),
+            'status' => 'active',
+            'notes' => 'Onboarded by HOD to cover Ikorodu hardware markets.',
+        ];
+
+        $response = $this->actingAs($lead)->post('/agents', $newAgentData);
+        $response->assertRedirect();
+
+        $created = User::where('email', 'babatunde.fashola@reliableelectrics.ng')->first();
+        $this->assertNotNull($created);
+        $this->assertEquals('field_agent', $created->role);
+        $this->assertEquals($lead->id, $created->onboarded_by_admin_id);
+    }
+
+    public function test_sales_lead_can_view_activity_reports_and_scorecards(): void
+    {
+        $lead = User::where('role', 'sales_manager')->first() ?? User::factory()->create(['role' => 'sales_manager']);
+
+        $response = $this->actingAs($lead)->get('/activities/report');
+        $response->assertStatus(200);
+        $response->assertSee('Performance Scorecard');
+    }
+
+    public function test_sales_lead_can_approve_order_status(): void
+    {
+        $lead = User::where('role', 'sales_manager')->first() ?? User::factory()->create(['role' => 'sales_manager']);
+        $order = Order::first();
+
+        $response = $this->actingAs($lead)->patch('/orders/' . $order->id . '/status', [
+            'order_status' => 'dispatched',
+        ]);
+        $response->assertRedirect();
+        $this->assertEquals('dispatched', $order->fresh()->order_status);
+    }
+
+    public function test_sales_lead_cannot_delete_field_agent(): void
+    {
+        $lead = User::where('role', 'sales_manager')->first() ?? User::factory()->create(['role' => 'sales_manager']);
+        $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+
+        $response = $this->actingAs($lead)->delete('/agents/' . $agent->id);
+        $response->assertStatus(403);
+    }
+
+    public function test_field_agent_cannot_access_agent_management(): void
+    {
+        $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+
+        $responseIndex = $this->actingAs($agent)->get('/agents');
+        $responseIndex->assertStatus(403);
+
+        $responseCreate = $this->actingAs($agent)->get('/agents/create');
+        $responseCreate->assertStatus(403);
+    }
 }

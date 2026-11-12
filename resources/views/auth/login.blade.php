@@ -98,21 +98,27 @@
                         <a href="{{ route('quick-login', $user) }}" 
                            class="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 hover:bg-slate-700/70 border border-slate-700/60 hover:border-blue-500/50 transition-all text-xs group">
                             <div class="flex items-center space-x-3">
-                                <div class="w-8 h-8 rounded-lg {{ $user->isAdmin() ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' }} flex items-center justify-center font-bold">
-                                    <i class="fa-solid {{ $user->isAdmin() ? 'fa-user-shield' : 'fa-motorcycle' }}"></i>
+                                <div class="w-8 h-8 rounded-lg {{ $user->isAdmin() ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : ($user->isSalesManager() ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30') }} flex items-center justify-center font-bold">
+                                    <i class="fa-solid {{ $user->isAdmin() ? 'fa-user-shield' : ($user->isSalesManager() ? 'fa-user-tie' : 'fa-motorcycle') }}"></i>
                                 </div>
                                 <div>
                                     <div class="font-semibold text-white group-hover:text-blue-400 transition-colors">
                                         {{ $user->name }}
                                     </div>
                                     <div class="text-[11px] text-slate-400">
-                                        {{ $user->isAdmin() ? 'Managing Director (Admin)' : ($user->territory ?: 'Field Sales Rep') }}
+                                        @if($user->isAdmin())
+                                            Managing Director (Admin)
+                                        @elseif($user->isSalesManager())
+                                            Field Sales Lead (HOD)
+                                        @else
+                                            {{ $user->territory ?: 'Field Sales Rep' }}
+                                        @endif
                                     </div>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2">
                                 <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">
-                                    {{ $user->agent_code ?: 'ADMIN' }}
+                                    {{ $user->agent_code ?: ($user->isAdmin() ? 'ADMIN' : 'HOD') }}
                                 </span>
                                 <i class="fa-solid fa-chevron-right text-slate-500 text-[10px] group-hover:text-white transition-colors"></i>
                             </div>

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Executive Dashboard')
-@section('header_title', 'Executive Operations Dashboard')
+@section('title', Auth::user()->isSalesManager() ? 'Field Sales Lead Dashboard' : 'Executive Dashboard')
+@section('header_title', Auth::user()->isSalesManager() ? 'Field Operations & Team Leadership' : 'Executive Operations Dashboard')
 
 @section('content')
 <div class="space-y-6">
@@ -12,13 +12,13 @@
             <div>
                 <div class="flex items-center space-x-2 text-blue-400 text-xs font-bold uppercase tracking-wider mb-1">
                     <i class="fa-solid fa-bolt"></i>
-                    <span>Reliable Electrics Nigeria Limited • Commercial Command Center</span>
+                    <span>Reliable Electrics Nigeria Limited • {{ Auth::user()->isSalesManager() ? 'Department of Field Sales & Distribution' : 'Commercial Command Center' }}</span>
                 </div>
                 <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-white">
                     Welcome, {{ Auth::user()->name }}
                 </h2>
                 <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-                    Overview of field executive activity, territory route compliance, customer onboarding velocity, and commercial collections across Lagos.
+                    {{ Auth::user()->isSalesManager() ? 'Supervise field sales executives, track territory route compliance, onboard new sales reps, and drive customer onboarding velocity across Lagos.' : 'Overview of field executive activity, territory route compliance, customer onboarding velocity, and commercial collections across Lagos.' }}
                 </p>
             </div>
             <div class="flex flex-wrap items-center gap-2">

@@ -28,15 +28,15 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Field Agent Management (Admin Only)
-    Route::prefix('agents')->name('agents.')->middleware('admin')->group(function () {
+    // Field Agent Management (Executive Admin & Field Sales Lead / HOD)
+    Route::prefix('agents')->name('agents.')->middleware('manager_or_admin')->group(function () {
         Route::get('/', [FieldAgentController::class, 'index'])->name('index');
         Route::get('/create', [FieldAgentController::class, 'create'])->name('create');
         Route::post('/', [FieldAgentController::class, 'store'])->name('store');
         Route::get('/{agent}', [FieldAgentController::class, 'show'])->name('show')->whereNumber('agent');
         Route::get('/{agent}/edit', [FieldAgentController::class, 'edit'])->name('edit');
         Route::put('/{agent}', [FieldAgentController::class, 'update'])->name('update');
-        Route::delete('/{agent}', [FieldAgentController::class, 'destroy'])->name('destroy');
+        Route::delete('/{agent}', [FieldAgentController::class, 'destroy'])->name('destroy')->middleware('admin');
     });
 
     // Customer Onboarding by Field Agent & Directory
@@ -58,8 +58,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/check-in', [ActivityController::class, 'createCheckIn'])->name('create_checkin');
         Route::post('/check-in', [ActivityController::class, 'storeCheckIn'])->name('store_checkin');
 
-        // Admin Only: Executive Reports & CSV Audit Export
-        Route::get('/report', [ActivityController::class, 'report'])->name('report')->middleware('admin');
+        // Field Performance Reports & CSV Audit Export (Admin & Field Sales Lead)
+        Route::get('/report', [ActivityController::class, 'report'])->name('report')->middleware('manager_or_admin');
     });
 
     // Sales Orders
@@ -69,10 +69,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [OrderController::class, 'store'])->name('store');
         Route::get('/{order}', [OrderController::class, 'show'])->name('show');
 
-        // Admin Only: Order Status Approval & Dispatch
+        // Order Status Approval & Dispatch (Admin & Field Sales Lead)
         Route::patch('/{order}/status', [OrderController::class, 'updateStatus'])
             ->name('update_status')
-            ->middleware('admin');
+            ->middleware('manager_or_admin');
     });
 
     // Payments & Collections

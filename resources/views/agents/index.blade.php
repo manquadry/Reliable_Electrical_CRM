@@ -13,7 +13,7 @@
             <p class="text-xs text-slate-500">Manage field representatives, assigned sales territories, targets, and onboarding records.</p>
         </div>
 
-        @if(Auth::user()->isAdmin())
+        @if(Auth::user()->canManageAgents())
             <a href="{{ route('agents.create') }}" 
                class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/30 transition-all">
                 <i class="fa-solid fa-user-plus"></i>

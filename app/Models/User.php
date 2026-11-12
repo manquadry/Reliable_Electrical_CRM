@@ -78,7 +78,36 @@ class User extends Authenticatable
 
     public function isSalesManager(): bool
     {
-        return $this->role === 'sales_manager';
+        return in_array($this->role, ['sales_manager', 'lead', 'hod']);
+    }
+
+    public function isLeadOrAdmin(): bool
+    {
+        return $this->isAdmin() || $this->isSalesManager();
+    }
+
+    public function canManageAgents(): bool
+    {
+        return $this->isLeadOrAdmin();
+    }
+
+    public function canViewReports(): bool
+    {
+        return $this->isLeadOrAdmin();
+    }
+
+    public function canApproveOrders(): bool
+    {
+        return $this->isLeadOrAdmin();
+    }
+
+    public function getRoleLabelAttribute(): string
+    {
+        return match ($this->role) {
+            'admin' => 'Executive Administrator',
+            'sales_manager', 'lead', 'hod' => 'Field Sales Lead (HOD)',
+            default => 'Field Sales Representative',
+        };
     }
 
     public function onboardedCustomers(): HasMany

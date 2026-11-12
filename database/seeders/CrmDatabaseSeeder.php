@@ -37,6 +37,26 @@ class CrmDatabaseSeeder extends Seeder
             ]
         );
 
+        $lead = User::firstOrCreate(
+            ['email' => 'lead@reliableelectrics.ng'],
+            [
+                'name' => 'Mrs. Funke Williams',
+                'password' => Hash::make('password'),
+                'role' => 'sales_manager',
+                'agent_code' => 'REL-HOD-01',
+                'phone' => '+234 803 441 9920',
+                'territory' => 'Greater Lagos Field Sales Operations (All Territories)',
+                'vehicle_type' => 'Department SUV (Toyota RAV4)',
+                'monthly_revenue_target' => 40000000.00,
+                'daily_visit_target' => 0,
+                'monthly_onboard_target' => 60,
+                'onboarded_date' => Carbon::now()->subMonths(10)->toDateString(),
+                'onboarded_by_admin_id' => $admin->id,
+                'status' => 'active',
+                'notes' => 'Head of Department (HOD) & Field Sales Lead. Supervises field executives across Ikeja, Alaba, Lekki, and Gbagada, onboards new sales reps, and enforces route targets.',
+            ]
+        );
+
         $agent1 = User::firstOrCreate(
             ['email' => 'chinedu@reliableelectrics.ng'],
             [
@@ -666,21 +686,23 @@ class CrmDatabaseSeeder extends Seeder
         }
 
         // 5. Create Sample Sales Orders
-        $order1 = Order::create([
-            'order_number' => 'ORD-2026-0081',
-            'customer_id' => $createdCustomers[0]->id, // Apex Mega
-            'user_id' => $agent2->id,
-            'order_date' => $today,
-            'subtotal' => 900000.00,
-            'discount_amount' => 45000.00,
-            'tax_amount' => 0.00,
-            'total_amount' => 855000.00,
-            'paid_amount' => 855000.00,
-            'payment_status' => 'fully_paid',
-            'order_status' => 'approved',
-            'delivery_address' => 'Plot 14B Adetokunbo Ademola St, Victoria Island, Lagos',
-            'notes' => 'VIP order for Nordic Chandeliers. Urgent dispatch requested.',
-        ]);
+        $order1 = Order::firstOrCreate(
+            ['order_number' => 'ORD-2026-0081'],
+            [
+                'customer_id' => $createdCustomers[0]->id, // Apex Mega
+                'user_id' => $agent2->id,
+                'order_date' => $today,
+                'subtotal' => 900000.00,
+                'discount_amount' => 45000.00,
+                'tax_amount' => 0.00,
+                'total_amount' => 855000.00,
+                'paid_amount' => 855000.00,
+                'payment_status' => 'fully_paid',
+                'order_status' => 'approved',
+                'delivery_address' => 'Plot 14B Adetokunbo Ademola St, Victoria Island, Lagos',
+                'notes' => 'VIP order for Nordic Chandeliers. Urgent dispatch requested.',
+            ]
+        );
 
         OrderItem::create([
             'order_id' => $order1->id,
@@ -690,95 +712,107 @@ class CrmDatabaseSeeder extends Seeder
             'total_price' => 900000.00,
         ]);
 
-        Payment::create([
-            'payment_reference' => 'PAY-2026-0091',
-            'customer_id' => $createdCustomers[0]->id,
-            'order_id' => $order1->id,
-            'user_id' => $agent2->id,
-            'amount' => 855000.00,
-            'payment_date' => $today,
-            'payment_method' => 'bank_transfer',
-            'reference_note' => 'GTB-TRF-99210044',
-            'status' => 'confirmed',
-            'notes' => 'Full advance transfer confirmed via GTBank corporate internet banking.',
-        ]);
+        Payment::firstOrCreate(
+            ['payment_reference' => 'PAY-2026-0091'],
+            [
+                'customer_id' => $createdCustomers[0]->id,
+                'order_id' => $order1->id,
+                'user_id' => $agent2->id,
+                'amount' => 855000.00,
+                'payment_date' => $today,
+                'payment_method' => 'bank_transfer',
+                'reference_note' => 'GTB-TRF-99210044',
+                'status' => 'confirmed',
+                'notes' => 'Full advance transfer confirmed via GTBank corporate internet banking.',
+            ]
+        );
 
-        $order2 = Order::create([
-            'order_number' => 'ORD-2026-0082',
-            'customer_id' => $createdCustomers[2]->id, // Alaba Hub
-            'user_id' => $agent3->id,
-            'order_date' => $today,
-            'subtotal' => 2930000.00,
-            'discount_amount' => 130000.00,
-            'tax_amount' => 0.00,
-            'total_amount' => 2800000.00,
-            'paid_amount' => 1500000.00,
-            'payment_status' => 'partially_paid',
-            'order_status' => 'approved',
-            'delivery_address' => 'Line 4, Shop 28 Electronics Section, Alaba Market, Lagos',
-            'notes' => 'Wholesale order for 100W floodlights and 8-way distribution boards.',
-        ]);
+        $order2 = Order::firstOrCreate(
+            ['order_number' => 'ORD-2026-0082'],
+            [
+                'customer_id' => $createdCustomers[2]->id, // Alaba Hub
+                'user_id' => $agent3->id,
+                'order_date' => $today,
+                'subtotal' => 2930000.00,
+                'discount_amount' => 130000.00,
+                'tax_amount' => 0.00,
+                'total_amount' => 2800000.00,
+                'paid_amount' => 1500000.00,
+                'payment_status' => 'partially_paid',
+                'order_status' => 'approved',
+                'delivery_address' => 'Line 4, Shop 28 Electronics Section, Alaba Market, Lagos',
+                'notes' => 'Wholesale order for 100W floodlights and 8-way distribution boards.',
+            ]
+        );
 
-        OrderItem::create([
-            'order_id' => $order2->id,
-            'product_id' => $createdProducts[1]->id, // 100W floodlight
-            'quantity' => 40,
-            'unit_price' => 39500.00,
-            'total_price' => 1580000.00,
-        ]);
+        if ($order2->wasRecentlyCreated) {
+            OrderItem::create([
+                'order_id' => $order2->id,
+                'product_id' => $createdProducts[1]->id, // 100W floodlight
+                'quantity' => 40,
+                'unit_price' => 39500.00,
+                'total_price' => 1580000.00,
+            ]);
 
-        OrderItem::create([
-            'order_id' => $order2->id,
-            'product_id' => $createdProducts[5]->id, // 8-way DB
-            'quantity' => 50,
-            'unit_price' => 27000.00,
-            'total_price' => 1350000.00,
-        ]);
+            OrderItem::create([
+                'order_id' => $order2->id,
+                'product_id' => $createdProducts[5]->id, // 8-way DB
+                'quantity' => 50,
+                'unit_price' => 27000.00,
+                'total_price' => 1350000.00,
+            ]);
+        }
 
-        Payment::create([
-            'payment_reference' => 'PAY-2026-0092',
-            'customer_id' => $createdCustomers[2]->id,
-            'order_id' => $order2->id,
-            'user_id' => $agent3->id,
-            'amount' => 1500000.00,
-            'payment_date' => $today,
-            'payment_method' => 'bank_transfer',
-            'reference_note' => 'ZENITH-TRF-5582910',
-            'status' => 'confirmed',
-            'notes' => '50% initial deposit paid, balance due upon warehouse dispatch.',
-        ]);
+        Payment::firstOrCreate(
+            ['payment_reference' => 'PAY-2026-0092'],
+            [
+                'customer_id' => $createdCustomers[2]->id,
+                'order_id' => $order2->id,
+                'user_id' => $agent3->id,
+                'amount' => 1500000.00,
+                'payment_date' => $today,
+                'payment_method' => 'bank_transfer',
+                'reference_note' => 'ZENITH-TRF-5582910',
+                'status' => 'confirmed',
+                'notes' => '50% initial deposit paid, balance due upon warehouse dispatch.',
+            ]
+        );
 
-        $order3 = Order::create([
-            'order_number' => 'ORD-2026-0083',
-            'customer_id' => $createdCustomers[6]->id, // Ogudu GRA (onboarded today)
-            'user_id' => $agent4->id,
-            'order_date' => $today,
-            'subtotal' => 236000.00,
-            'discount_amount' => 10000.00,
-            'tax_amount' => 0.00,
-            'total_amount' => 226000.00,
-            'paid_amount' => 0.00,
-            'payment_status' => 'unpaid',
-            'order_status' => 'pending_approval',
-            'delivery_address' => 'Plot 5 Ogudu Road, Opposite Ogudu Mall, Lagos',
-            'notes' => 'First opening trial order for newly onboarded retail outlet.',
-        ]);
+        $order3 = Order::firstOrCreate(
+            ['order_number' => 'ORD-2026-0083'],
+            [
+                'customer_id' => $createdCustomers[6]->id, // Ogudu GRA (onboarded today)
+                'user_id' => $agent4->id,
+                'order_date' => $today,
+                'subtotal' => 236000.00,
+                'discount_amount' => 10000.00,
+                'tax_amount' => 0.00,
+                'total_amount' => 226000.00,
+                'paid_amount' => 0.00,
+                'payment_status' => 'unpaid',
+                'order_status' => 'pending_approval',
+                'delivery_address' => 'Plot 5 Ogudu Road, Opposite Ogudu Mall, Lagos',
+                'notes' => 'First opening trial order for newly onboarded retail outlet.',
+            ]
+        );
 
-        OrderItem::create([
-            'order_id' => $order3->id,
-            'product_id' => $createdProducts[9]->id, // Rechargeable mist fan
-            'quantity' => 3,
-            'unit_price' => 59000.00,
-            'total_price' => 177000.00,
-        ]);
+        if ($order3->wasRecentlyCreated) {
+            OrderItem::create([
+                'order_id' => $order3->id,
+                'product_id' => $createdProducts[9]->id, // Rechargeable mist fan
+                'quantity' => 3,
+                'unit_price' => 59000.00,
+                'total_price' => 177000.00,
+            ]);
 
-        OrderItem::create([
-            'order_id' => $order3->id,
-            'product_id' => $createdProducts[10]->id, // 13A dual USB socket
-            'quantity' => 10,
-            'unit_price' => 5900.00,
-            'total_price' => 59000.00,
-        ]);
+            OrderItem::create([
+                'order_id' => $order3->id,
+                'product_id' => $createdProducts[10]->id, // 13A dual USB socket
+                'quantity' => 10,
+                'unit_price' => 5900.00,
+                'total_price' => 59000.00,
+            ]);
+        }
     }
 }
 

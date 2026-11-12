@@ -35,7 +35,7 @@
             </div>
 
             <div class="flex items-center space-x-2">
-                @if(Auth::user()->isAdmin())
+                @if(Auth::user()->canManageAgents())
                     <a href="{{ route('agents.edit', $agent) }}" 
                        class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold border border-white/20 transition-all">
                         <i class="fa-solid fa-pen-to-square mr-1.5"></i>Edit Profile
