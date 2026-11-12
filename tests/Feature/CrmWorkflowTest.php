@@ -145,7 +145,10 @@ class CrmWorkflowTest extends TestCase
     public function test_field_agent_can_log_checkin_visit(): void
     {
         $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
-        $customer = Customer::first();
+        $customer = Customer::where('onboarded_by', $agent->id)->first() ?? Customer::first();
+        if ($customer->onboarded_by !== $agent->id) {
+            $customer->update(['onboarded_by' => $agent->id]);
+        }
 
         $checkInData = [
             'customer_id' => $customer->id,
@@ -170,7 +173,10 @@ class CrmWorkflowTest extends TestCase
     public function test_order_creation_reduces_stock_and_creates_items(): void
     {
         $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
-        $customer = Customer::first();
+        $customer = Customer::where('onboarded_by', $agent->id)->first() ?? Customer::first();
+        if ($customer->onboarded_by !== $agent->id) {
+            $customer->update(['onboarded_by' => $agent->id]);
+        }
         $product = Product::first();
         $initialStock = $product->stock_quantity;
 
@@ -745,5 +751,147 @@ class CrmWorkflowTest extends TestCase
         $filterResponse->assertStatus(200);
         $filterResponse->assertSee($actA->purpose);
         $filterResponse->assertDontSee($actB->purpose);
+    }
+
+    public function test_field_agent_cross_office_authorization_locks(): void
+    {
+        $agentA = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+        $agentB = User::factory()->create(['role' => 'field_agent', 'email' => 'agentB_lock_' . time() . '@test.ng']);
+
+        // Create Customer assigned to Agent B
+        $customerB = Customer::create([
+            'company_name' => 'Agent B Dedicated Shop ' . time(),
+            'customer_code' => 'CUST-LOCK-' . time(),
+            'contact_person' => 'Proprietor B',
+            'phone' => '+234 809 111 2233',
+            'category' => 'retailer',
+            'territory' => 'Alaba Market',
+            'address' => 'Alaba International Market, Lagos',
+            'city' => 'Lagos',
+            'state' => 'Lagos State',
+            'credit_limit' => 2000000,
+            'payment_terms' => 'net_7',
+            'onboarded_by' => $agentB->id,
+            'onboarded_date' => Carbon::today()->toDateString(),
+            'verification_status' => 'verified',
+            'status' => 'active',
+        ]);
+
+        // Agent A attempts to view Customer B: 403 Forbidden
+        $responseShow = $this->actingAs($agentA)->get("/customers/{$customerB->id}");
+        $responseShow->assertStatus(403);
+
+        // Agent A attempts to edit Customer B: 403 Forbidden
+        $responseEdit = $this->actingAs($agentA)->get("/customers/{$customerB->id}/edit");
+        $responseEdit->assertStatus(403);
+
+        // Agent A attempts to log a check-in for Customer B: 403 Forbidden
+        $responseCheckin = $this->actingAs($agentA)->post('/activities/check-in', [
+            'customer_id' => $customerB->id,
+            'activity_date' => Carbon::today()->toDateString(),
+            'check_in_time' => '11:00',
+            'activity_type' => 'store_visit',
+            'purpose' => 'Illegal cross-office check-in',
+            'outcome' => 'prospect_interested',
+        ]);
+        $responseCheckin->assertStatus(403);
+
+        // Agent A attempts to book an order for Customer B: 403 Forbidden
+        $product = Product::first();
+        $responseOrder = $this->actingAs($agentA)->post('/orders', [
+            'order_number' => 'ORD-LOCK-' . time(),
+            'customer_id' => $customerB->id,
+            'order_date' => Carbon::today()->toDateString(),
+            'items' => [
+                [
+                    'product_id' => $product->id,
+                    'quantity' => 1,
+                    'unit_price' => $product->wholesale_price,
+                ],
+            ],
+        ]);
+        $responseOrder->assertStatus(403);
+
+        // Agent A attempts to record a payment for Customer B: 403 Forbidden
+        $responsePayment = $this->actingAs($agentA)->post('/payments', [
+            'payment_reference' => 'PAY-LOCK-' . time(),
+            'customer_id' => $customerB->id,
+            'amount' => 50000,
+            'payment_date' => Carbon::today()->toDateString(),
+            'payment_method' => 'bank_transfer',
+        ]);
+        $responsePayment->assertStatus(403);
+    }
+
+    public function test_payment_recording_accurately_sums_and_updates_order_status(): void
+    {
+        $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+
+        $customer = Customer::create([
+            'company_name' => 'Payment Test Electricals ' . time(),
+            'customer_code' => 'CUST-PAY-' . time(),
+            'contact_person' => 'Mr. Audu',
+            'phone' => '+234 803 999 0011',
+            'category' => 'wholesaler',
+            'territory' => 'Ikeja',
+            'address' => 'Ikeja Commercial Zone, Lagos',
+            'city' => 'Lagos',
+            'state' => 'Lagos State',
+            'credit_limit' => 5000000,
+            'payment_terms' => 'net_14',
+            'onboarded_by' => $agent->id,
+            'onboarded_date' => Carbon::today()->toDateString(),
+            'verification_status' => 'verified',
+            'status' => 'active',
+        ]);
+
+        $product = Product::first();
+
+        // Create an order of 100,000 NGN
+        $order = Order::create([
+            'order_number' => 'ORD-SUM-' . time(),
+            'customer_id' => $customer->id,
+            'user_id' => $agent->id,
+            'order_date' => Carbon::today()->toDateString(),
+            'subtotal' => 100000,
+            'discount_amount' => 0,
+            'tax_amount' => 0,
+            'total_amount' => 100000,
+            'paid_amount' => 0,
+            'payment_status' => 'unpaid',
+            'order_status' => 'approved',
+        ]);
+
+        // Record 1st payment of 40,000 NGN
+        $pay1Response = $this->actingAs($agent)->post('/payments', [
+            'payment_reference' => 'PAY-SUM-1-' . time(),
+            'customer_id' => $customer->id,
+            'order_id' => $order->id,
+            'amount' => 40000,
+            'payment_date' => Carbon::today()->toDateString(),
+            'payment_method' => 'bank_transfer',
+            'reference_note' => 'Part payment 1',
+        ]);
+        $pay1Response->assertRedirect('/payments');
+
+        $order->refresh();
+        $this->assertEquals(40000, (float)$order->paid_amount);
+        $this->assertEquals('partially_paid', $order->payment_status);
+
+        // Record 2nd payment of 60,000 NGN (completes total)
+        $pay2Response = $this->actingAs($agent)->post('/payments', [
+            'payment_reference' => 'PAY-SUM-2-' . time(),
+            'customer_id' => $customer->id,
+            'order_id' => $order->id,
+            'amount' => 60000,
+            'payment_date' => Carbon::today()->toDateString(),
+            'payment_method' => 'pos_card',
+            'reference_note' => 'Final payment 2',
+        ]);
+        $pay2Response->assertRedirect('/payments');
+
+        $order->refresh();
+        $this->assertEquals(100000, (float)$order->paid_amount);
+        $this->assertEquals('fully_paid', $order->payment_status);
     }
 }

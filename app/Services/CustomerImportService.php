@@ -471,8 +471,10 @@ class CustomerImportService
             // Customer code handling
             $code = strtoupper(trim((string)($row['customer_code'] ?? '')));
             if ($code === '') {
-                $code = 'CUST-IMP-' . str_pad((string)$codeCounter, 4, '0', STR_PAD_LEFT);
-                $codeCounter++;
+                do {
+                    $code = 'CUST-IMP-' . str_pad((string)$codeCounter, 4, '0', STR_PAD_LEFT);
+                    $codeCounter++;
+                } while (Customer::where('customer_code', $code)->exists());
             }
 
             // Category normalization

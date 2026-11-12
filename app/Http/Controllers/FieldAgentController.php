@@ -54,7 +54,12 @@ class FieldAgentController extends Controller
     {
         // Generate next suggested agent code
         $latestId = User::where('role', 'field_agent')->max('id') ?? 0;
-        $suggestedCode = 'REL-FE-' . str_pad((string)($latestId + 101), 3, '0', STR_PAD_LEFT);
+        $agentCounter = $latestId + 101;
+        $suggestedCode = 'REL-FE-' . str_pad((string)$agentCounter, 3, '0', STR_PAD_LEFT);
+        while (User::where('agent_code', $suggestedCode)->exists()) {
+            $agentCounter++;
+            $suggestedCode = 'REL-FE-' . str_pad((string)$agentCounter, 3, '0', STR_PAD_LEFT);
+        }
 
         return view('agents.create', compact('suggestedCode'));
     }

@@ -22,7 +22,8 @@ class OrderController extends Controller
     {
         $query = Order::with(['customer', 'user', 'items.product']);
 
-        if (Auth::user()->isFieldAgent() && !$request->has('view_all')) {
+        // Field agents strictly only see orders booked by their field office
+        if (Auth::user()->isFieldAgent()) {
             $query->where('user_id', Auth::id());
         }
 
@@ -66,14 +67,26 @@ class OrderController extends Controller
             $selectedCustomer = $customerId ? Customer::find($customerId) : null;
         }
 
-        $customers = Customer::where('status', 'active')
+        $customersQuery = Customer::where('status', 'active');
+        if (Auth::user()->isFieldAgent()) {
+            $customersQuery->where(function ($q) {
+                $q->where('onboarded_by', Auth::id())
+                  ->orWhere('customer_code', 'CUST-WALKIN-HQ');
+            });
+        }
+        $customers = $customersQuery
             ->orderByRaw("CASE WHEN customer_code = 'CUST-WALKIN-HQ' THEN 0 ELSE 1 END")
             ->orderBy('company_name')
             ->get();
         $products = Product::where('is_active', true)->orderBy('name')->get();
 
         $latestId = Order::max('id') ?? 0;
-        $suggestedOrderNumber = 'ORD-' . date('Y') . '-' . str_pad((string)($latestId + 101), 4, '0', STR_PAD_LEFT);
+        $orderCounter = $latestId + 101;
+        $suggestedOrderNumber = 'ORD-' . date('Y') . '-' . str_pad((string)$orderCounter, 4, '0', STR_PAD_LEFT);
+        while (Order::where('order_number', $suggestedOrderNumber)->exists()) {
+            $orderCounter++;
+            $suggestedOrderNumber = 'ORD-' . date('Y') . '-' . str_pad((string)$orderCounter, 4, '0', STR_PAD_LEFT);
+        }
 
         return view('orders.create', compact('customers', 'selectedCustomer', 'products', 'suggestedOrderNumber', 'isWalkIn', 'walkInCustomer'));
     }
@@ -96,6 +109,13 @@ class OrderController extends Controller
             'payment_method' => ['nullable', 'in:pos_card,cash,bank_transfer'],
             'notes' => ['nullable', 'string'],
         ]);
+
+        if (Auth::user()->isFieldAgent()) {
+            $customer = Customer::find($request->input('customer_id'));
+            if ($customer && $customer->onboarded_by !== Auth::id() && $customer->customer_code !== 'CUST-WALKIN-HQ') {
+                abort(403, 'Unauthorized access: You can only book orders for stores assigned to your field office.');
+            }
+        }
 
         $order = DB::transaction(function () use ($request) {
             $subtotal = 0;
@@ -159,7 +179,12 @@ class OrderController extends Controller
             if ($isInstantPaid && $total > 0) {
                 $method = $request->input('payment_method', 'pos_card');
                 $latestPayId = Payment::max('id') ?? 0;
-                $payRef = 'PAY-' . date('Y') . '-' . str_pad((string)($latestPayId + 101), 4, '0', STR_PAD_LEFT);
+                $payCounter = $latestPayId + 101;
+                $payRef = 'PAY-' . date('Y') . '-' . str_pad((string)$payCounter, 4, '0', STR_PAD_LEFT);
+                while (Payment::where('payment_reference', $payRef)->exists()) {
+                    $payCounter++;
+                    $payRef = 'PAY-' . date('Y') . '-' . str_pad((string)$payCounter, 4, '0', STR_PAD_LEFT);
+                }
 
                 Payment::create([
                     'payment_reference' => $payRef,
@@ -201,6 +226,11 @@ class OrderController extends Controller
 
     public function show(Order $order): View
     {
+        // Field agents can strictly only view orders booked by their field office
+        if (Auth::user()->isFieldAgent() && $order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access: You are only authorized to view orders booked by your field office.');
+        }
+
         $order->load(['customer', 'user', 'items.product', 'payments']);
 
         return view('orders.show', compact('order'));

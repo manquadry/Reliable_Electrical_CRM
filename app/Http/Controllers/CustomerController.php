@@ -45,7 +45,7 @@ class CustomerController extends Controller
             $query->where('territory', 'like', '%' . $request->input('territory') . '%');
         }
 
-        if ($request->filled('agent_id')) {
+        if ($request->filled('agent_id') && !Auth::user()->isFieldAgent()) {
             if ($request->input('agent_id') === 'unassigned') {
                 $query->whereNull('onboarded_by');
             } else {
@@ -73,7 +73,12 @@ class CustomerController extends Controller
     {
         $agents = User::where('role', 'field_agent')->where('status', 'active')->orderBy('name')->get();
         $latestId = Customer::max('id') ?? 0;
-        $suggestedCode = 'CUST-REL-' . str_pad((string)($latestId + 101), 4, '0', STR_PAD_LEFT);
+        $codeCounter = $latestId + 101;
+        $suggestedCode = 'CUST-REL-' . str_pad((string)$codeCounter, 4, '0', STR_PAD_LEFT);
+        while (Customer::where('customer_code', $suggestedCode)->exists()) {
+            $codeCounter++;
+            $suggestedCode = 'CUST-REL-' . str_pad((string)$codeCounter, 4, '0', STR_PAD_LEFT);
+        }
 
         return view('customers.create', compact('agents', 'suggestedCode'));
     }
@@ -103,7 +108,7 @@ class CustomerController extends Controller
             'credit_limit' => ['required', 'numeric', 'min:0'],
             'payment_terms' => ['required', 'in:cash_on_delivery,net_7,net_14,net_30'],
             'onboarded_date' => ['required', 'date'],
-            'onboarded_by' => ['required', 'exists:users,id'],
+            'onboarded_by' => ['nullable', 'exists:users,id'],
             'notes' => ['nullable', 'string'],
         ]);
 
@@ -112,21 +117,24 @@ class CustomerController extends Controller
 
         $customer = Customer::create($validated);
 
-        // Automatically log an onboarding activity for the field agent
-        FieldActivity::create([
-            'user_id' => $customer->onboarded_by,
-            'customer_id' => $customer->id,
-            'activity_date' => $customer->onboarded_date,
-            'check_in_time' => Carbon::now()->format('H:i:s'),
-            'check_out_time' => Carbon::now()->addMinutes(30)->format('H:i:s'),
-            'activity_type' => 'new_customer_onboarding',
-            'purpose' => 'New Customer Registration & Shop Verification',
-            'notes' => 'Successfully registered and verified ' . $customer->company_name . ' (' . $customer->getCategoryLabelAttribute() . ') in ' . $customer->territory . '.',
-            'outcome' => 'prospect_interested',
-            'latitude' => $customer->latitude,
-            'longitude' => $customer->longitude,
-            'location_address' => $customer->address . ', ' . $customer->city,
-        ]);
+        // Automatically log an onboarding activity if attributed to an agent or creator
+        $onboardUserId = $customer->onboarded_by ?: Auth::id();
+        if ($onboardUserId) {
+            FieldActivity::create([
+                'user_id' => $onboardUserId,
+                'customer_id' => $customer->id,
+                'activity_date' => $customer->onboarded_date,
+                'check_in_time' => Carbon::now()->format('H:i:s'),
+                'check_out_time' => Carbon::now()->addMinutes(30)->format('H:i:s'),
+                'activity_type' => 'new_customer_onboarding',
+                'purpose' => 'New Customer Registration & Shop Verification',
+                'notes' => 'Successfully registered and verified ' . $customer->company_name . ' (' . $customer->getCategoryLabelAttribute() . ') in ' . $customer->territory . '.',
+                'outcome' => 'prospect_interested',
+                'latitude' => $customer->latitude,
+                'longitude' => $customer->longitude,
+                'location_address' => $customer->address . ', ' . $customer->city,
+            ]);
+        }
 
         return redirect()->route('customers.show', $customer)
             ->with('success', 'Customer ' . $customer->company_name . ' onboarded successfully on ' . Carbon::parse($customer->onboarded_date)->format('M d, Y') . '!');

@@ -22,7 +22,7 @@ class DashboardController extends Controller
         $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
         $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
 
-        if ($user->isLeadOrAdmin() || $request->has('admin_view')) {
+        if ($user->isLeadOrAdmin()) {
             // EXECUTIVE ADMIN & FIELD SALES LEAD DASHBOARD METRICS
             $totalAgents = User::where('role', 'field_agent')->count();
             $totalActiveAgents = User::where('role', 'field_agent')->where('status', 'active')->count();

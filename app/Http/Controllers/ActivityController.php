@@ -140,7 +140,7 @@ class ActivityController extends Controller
     {
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
         $endDate = $request->input('end_date', Carbon::today()->toDateString());
-        $agentId = $request->input('agent_id');
+        $agentId = Auth::user()->isFieldAgent() ? Auth::id() : $request->input('agent_id');
         $activityType = $request->input('activity_type');
         $outcome = $request->input('outcome');
 
@@ -270,7 +270,9 @@ class ActivityController extends Controller
                 return $agent;
             });
 
-        $allAgents = User::where('role', 'field_agent')->orderBy('name')->get();
+        $allAgents = Auth::user()->isFieldAgent()
+            ? User::where('id', Auth::id())->get()
+            : User::where('role', 'field_agent')->orderBy('name')->get();
 
         return view('activities.report', compact(
             'activities',
@@ -293,7 +295,12 @@ class ActivityController extends Controller
         $customerId = $request->input('customer_id');
         $selectedCustomer = $customerId ? Customer::find($customerId) : null;
 
-        $customers = Customer::where('status', 'active')
+        $customersQuery = Customer::where('status', 'active');
+        if (Auth::user()->isFieldAgent()) {
+            $customersQuery->where('onboarded_by', Auth::id());
+        }
+
+        $customers = $customersQuery
             ->orderBy('company_name')
             ->get();
 
@@ -322,6 +329,13 @@ class ActivityController extends Controller
             'longitude' => ['nullable', 'numeric'],
             'location_address' => ['nullable', 'string', 'max:255'],
         ]);
+
+        if (Auth::user()->isFieldAgent() && !empty($validated['customer_id'])) {
+            $customer = Customer::find($validated['customer_id']);
+            if ($customer && $customer->onboarded_by !== Auth::id() && $customer->customer_code !== 'CUST-WALKIN-HQ') {
+                abort(403, 'Unauthorized access: You can only log check-ins for stores assigned to your field office.');
+            }
+        }
 
         $validated['user_id'] = Auth::id();
 
