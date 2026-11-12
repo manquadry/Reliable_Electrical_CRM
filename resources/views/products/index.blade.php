@@ -13,11 +13,13 @@
             <p class="text-xs text-slate-500">Commercial floodlights, modern chandeliers, changeovers, distribution boards, pure copper cables and appliances.</p>
         </div>
 
-        <a href="{{ route('products.create') }}" 
-           class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/30 transition-all">
-            <i class="fa-solid fa-plus"></i>
-            <span>Add New Product</span>
-        </a>
+        @if(Auth::user()->isAdmin())
+            <a href="{{ route('products.create') }}" 
+               class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/30 transition-all">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add New Product</span>
+            </a>
+        @endif
     </div>
 
     <!-- Search & Category Filters -->
@@ -85,10 +87,14 @@
                         <span class="text-slate-400 text-[11px]">in stock</span>
                     </div>
 
-                    <a href="{{ route('products.edit', $prod) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-xs flex items-center space-x-1">
-                        <i class="fa-solid fa-pen-to-square text-[10px]"></i>
-                        <span>Edit</span>
-                    </a>
+                    @if(Auth::user()->isAdmin())
+                        <a href="{{ route('products.edit', $prod) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-xs flex items-center space-x-1">
+                            <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                            <span>Edit</span>
+                        </a>
+                    @else
+                        <span class="text-[11px] text-slate-400 font-mono">{{ $prod->sku }}</span>
+                    @endif
                 </div>
             </div>
         @empty

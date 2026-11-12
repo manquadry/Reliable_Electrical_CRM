@@ -14,19 +14,30 @@
         </a>
 
         <div class="flex items-center space-x-2">
-            <!-- Status Update Form -->
-            <form action="{{ route('orders.update_status', $order) }}" method="POST" class="flex items-center space-x-1.5">
-                @csrf
-                @method('PATCH')
-                <select name="order_status" onchange="this.form.submit()" class="text-xs font-bold px-3 py-1.5 border border-slate-300 rounded-lg bg-white text-slate-800 shadow-2xs">
-                    <option value="draft" {{ $order->order_status === 'draft' ? 'selected' : '' }}>Draft</option>
-                    <option value="pending_approval" {{ $order->order_status === 'pending_approval' ? 'selected' : '' }}>Pending Approval</option>
-                    <option value="approved" {{ $order->order_status === 'approved' ? 'selected' : '' }}>Approved</option>
-                    <option value="dispatched" {{ $order->order_status === 'dispatched' ? 'selected' : '' }}>Dispatched</option>
-                    <option value="delivered" {{ $order->order_status === 'delivered' ? 'selected' : '' }}>Delivered</option>
-                    <option value="cancelled" {{ $order->order_status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                </select>
-            </form>
+            @if(Auth::user()->isAdmin())
+                <!-- Admin Only Status Update Form -->
+                <form action="{{ route('orders.update_status', $order) }}" method="POST" class="flex items-center space-x-1.5">
+                    @csrf
+                    @method('PATCH')
+                    <span class="text-[11px] font-semibold text-slate-500 mr-1">Status:</span>
+                    <select name="order_status" onchange="this.form.submit()" class="text-xs font-bold px-3 py-1.5 border border-slate-300 rounded-lg bg-white text-slate-800 shadow-2xs">
+                        <option value="draft" {{ $order->order_status === 'draft' ? 'selected' : '' }}>Draft</option>
+                        <option value="pending_approval" {{ $order->order_status === 'pending_approval' ? 'selected' : '' }}>Pending Approval</option>
+                        <option value="approved" {{ $order->order_status === 'approved' ? 'selected' : '' }}>Approved</option>
+                        <option value="dispatched" {{ $order->order_status === 'dispatched' ? 'selected' : '' }}>Dispatched</option>
+                        <option value="delivered" {{ $order->order_status === 'delivered' ? 'selected' : '' }}>Delivered</option>
+                        <option value="cancelled" {{ $order->order_status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                    </select>
+                </form>
+            @else
+                <!-- Non-Admin Read-Only Status Display -->
+                <div class="flex items-center space-x-1.5">
+                    <span class="text-[11px] font-semibold text-slate-500">Status:</span>
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-bold {{ $order->order_status === 'delivered' ? 'bg-emerald-100 text-emerald-800' : ($order->order_status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800') }}">
+                        {{ ucfirst(str_replace('_', ' ', $order->order_status)) }}
+                    </span>
+                </div>
+            @endif
 
             @if($order->payment_status !== 'fully_paid')
                 <a href="{{ route('payments.create', ['order_id' => $order->id, 'customer_id' => $order->customer_id]) }}" 

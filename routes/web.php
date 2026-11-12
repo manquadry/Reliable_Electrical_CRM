@@ -28,15 +28,19 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Field Agent Onboarding & Management
+    // Field Agent Directory & Profile
     Route::prefix('agents')->name('agents.')->group(function () {
         Route::get('/', [FieldAgentController::class, 'index'])->name('index');
-        Route::get('/create', [FieldAgentController::class, 'create'])->name('create');
-        Route::post('/', [FieldAgentController::class, 'store'])->name('store');
-        Route::get('/{agent}', [FieldAgentController::class, 'show'])->name('show');
-        Route::get('/{agent}/edit', [FieldAgentController::class, 'edit'])->name('edit');
-        Route::put('/{agent}', [FieldAgentController::class, 'update'])->name('update');
-        Route::delete('/{agent}', [FieldAgentController::class, 'destroy'])->name('destroy');
+        Route::get('/{agent}', [FieldAgentController::class, 'show'])->name('show')->whereNumber('agent');
+
+        // Admin Only: Onboarding & Management of Field Agents
+        Route::middleware('admin')->group(function () {
+            Route::get('/create', [FieldAgentController::class, 'create'])->name('create');
+            Route::post('/', [FieldAgentController::class, 'store'])->name('store');
+            Route::get('/{agent}/edit', [FieldAgentController::class, 'edit'])->name('edit');
+            Route::put('/{agent}', [FieldAgentController::class, 'update'])->name('update');
+            Route::delete('/{agent}', [FieldAgentController::class, 'destroy'])->name('destroy');
+        });
     });
 
     // Customer Onboarding by Field Agent & Directory
@@ -66,7 +70,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/create', [OrderController::class, 'create'])->name('create');
         Route::post('/', [OrderController::class, 'store'])->name('store');
         Route::get('/{order}', [OrderController::class, 'show'])->name('show');
-        Route::patch('/{order}/status', [OrderController::class, 'updateStatus'])->name('update_status');
+
+        // Admin Only: Order Status Approval & Dispatch
+        Route::patch('/{order}/status', [OrderController::class, 'updateStatus'])
+            ->name('update_status')
+            ->middleware('admin');
     });
 
     // Payments & Collections
@@ -76,12 +84,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [PaymentController::class, 'store'])->name('store');
     });
 
-    // Products Catalog
+    // Products Catalog (Viewable by all sales staff; Created/Modified by Admin only)
     Route::prefix('products')->name('products.')->group(function () {
         Route::get('/', [ProductController::class, 'index'])->name('index');
-        Route::get('/create', [ProductController::class, 'create'])->name('create');
-        Route::post('/', [ProductController::class, 'store'])->name('store');
-        Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('edit');
-        Route::put('/{product}', [ProductController::class, 'update'])->name('update');
+
+        // Admin Only: Add/Edit Catalog Products
+        Route::middleware('admin')->group(function () {
+            Route::get('/create', [ProductController::class, 'create'])->name('create');
+            Route::post('/', [ProductController::class, 'store'])->name('store');
+            Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('edit');
+            Route::put('/{product}', [ProductController::class, 'update'])->name('update');
+        });
     });
 });

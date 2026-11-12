@@ -230,4 +230,51 @@ class CrmWorkflowTest extends TestCase
             'state' => 'Lagos',
         ]);
     }
+
+    public function test_field_agent_cannot_access_agent_creation(): void
+    {
+        $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+
+        $response = $this->actingAs($agent)->get('/agents/create');
+        $response->assertStatus(403);
+    }
+
+    public function test_admin_can_access_agent_creation(): void
+    {
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get('/agents/create');
+        $response->assertStatus(200);
+    }
+
+    public function test_field_agent_cannot_access_product_creation(): void
+    {
+        $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+
+        $response = $this->actingAs($agent)->get('/products/create');
+        $response->assertStatus(403);
+    }
+
+    public function test_field_agent_cannot_update_order_status(): void
+    {
+        $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+        $order = Order::first();
+
+        $response = $this->actingAs($agent)->patch('/orders/' . $order->id . '/status', [
+            'order_status' => 'delivered',
+        ]);
+        $response->assertStatus(403);
+    }
+
+    public function test_admin_can_update_order_status(): void
+    {
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+        $order = Order::first();
+
+        $response = $this->actingAs($admin)->patch('/orders/' . $order->id . '/status', [
+            'order_status' => 'delivered',
+        ]);
+        $response->assertRedirect();
+        $this->assertEquals('delivered', $order->fresh()->order_status);
+    }
 }

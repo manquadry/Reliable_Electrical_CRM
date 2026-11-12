@@ -35,10 +35,12 @@
             </div>
 
             <div class="flex items-center space-x-2">
-                <a href="{{ route('agents.edit', $agent) }}" 
-                   class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold border border-white/20 transition-all">
-                    <i class="fa-solid fa-pen-to-square mr-1.5"></i>Edit Profile
-                </a>
+                @if(Auth::user()->isAdmin())
+                    <a href="{{ route('agents.edit', $agent) }}" 
+                       class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold border border-white/20 transition-all">
+                        <i class="fa-solid fa-pen-to-square mr-1.5"></i>Edit Profile
+                    </a>
+                @endif
                 <a href="{{ route('activities.daily', ['date' => $today]) }}" 
                    class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md shadow-blue-600/30 transition-all">
                     <i class="fa-solid fa-calendar-day mr-1.5"></i>Daily Tracker
