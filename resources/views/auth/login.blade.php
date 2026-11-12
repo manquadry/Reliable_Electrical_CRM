@@ -40,8 +40,6 @@
             }
         }
     </script>
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <style>
         .mesh-gradient {
@@ -51,76 +49,11 @@
                 radial-gradient(at 85% 85%, rgba(99, 102, 241, 0.18) 0px, transparent 55%),
                 radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.9) 0px, transparent 100%);
         }
-        [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="h-full font-sans antialiased text-slate-100 mesh-gradient flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8 selection:bg-brand-600 selection:text-white"
-      x-data="{
-          selectedRole: 'sales_manager',
-          email: 'lead@reliableelectrics.ng',
-          password: 'password',
-          roleDetails: {
-              sales_manager: {
-                  name: 'Mrs. Funke Williams',
-                  email: 'lead@reliableelectrics.ng',
-                  title: 'Head of Sales Department & Operations Lead',
-                  badge: 'Head of Sales (HOD)',
-                  badgeClass: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40',
-                  icon: 'fa-user-tie',
-                  iconBg: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30',
-                  quickLoginUrl: '{{ route('quick-login', 7) }}',
-                  capabilities: [
-                      'Supervise all field sales executives across Lagos commercial trading corridors',
-                      'Onboard new field sales representatives (/agents/create) with quotas, vehicles & territories',
-                      'Audit daily field check-ins, store visits & satellite GPS locations (/activities/daily)',
-                      'Approve commercial sales orders & review formal delivery waybills (/orders)',
-                      'Inspect team performance scorecards & download CSV audit reports (/activities/report)',
-                      'Manage customer directory & retailer store assignments across Lagos (/customers)'
-                  ]
-              },
-              admin: {
-                  name: 'Engr. Adekunle Lawal',
-                  email: 'admin@reliableelectrics.ng',
-                  title: 'Managing Director & Chief Executive',
-                  badge: 'Managing Director (Admin)',
-                  badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
-                  icon: 'fa-user-shield',
-                  iconBg: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-                  quickLoginUrl: '{{ route('quick-login', 1) }}',
-                  capabilities: [
-                      'Executive distribution governance & commercial performance metrics across Lagos',
-                      'Inspect date-by-date field activity audit trail with verified GPS coordinates',
-                      'Onboard field agents and departmental managers with financial target governance',
-                      'Formal invoice & delivery waybill approval with warehouse dispatch controls',
-                      'Export comprehensive CSV activity reports for executive board reviews'
-                  ]
-              },
-              field_agent: {
-                  name: 'Chinedu Okeke',
-                  email: 'chinedu@reliableelectrics.ng',
-                  title: 'Senior Field Sales Executive (Ikeja & Oregun Hub)',
-                  badge: 'Field Representative',
-                  badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-                  icon: 'fa-motorcycle',
-                  iconBg: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-                  quickLoginUrl: '{{ route('quick-login', 2) }}',
-                  capabilities: [
-                      'Log in-person retail store visits with live satellite GPS reverse-geocoding',
-                      'Onboard new electrical retail shops, wholesalers & lighting showrooms',
-                      'Book instant wholesale purchase orders on customer premises',
-                      'Record payment collections (bank transfer, POS, cash) and payment receipts',
-                      'Track daily visit quota meters & monthly revenue target achievement'
-                  ]
-              }
-          },
-          selectRole(role) {
-              this.selectedRole = role;
-              this.email = this.roleDetails[role].email;
-              this.password = 'password';
-          }
-      }">
+<body class="h-full font-sans antialiased text-slate-100 mesh-gradient flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8 selection:bg-brand-600 selection:text-white">
 
-    <div class="sm:mx-auto sm:w-full sm:max-w-2xl text-center">
+    <div class="sm:mx-auto sm:w-full sm:max-w-xl text-center">
         <!-- Glowing Lightning Emblem -->
         <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-sky-400 shadow-glow text-white mb-3 ring-1 ring-white/20">
             <i class="fa-solid fa-bolt text-2xl animate-pulse"></i>
@@ -138,7 +71,7 @@
         </p>
     </div>
 
-    <div class="mt-6 sm:mx-auto sm:w-full sm:max-w-2xl">
+    <div class="mt-6 sm:mx-auto sm:w-full sm:max-w-xl">
         <div class="bg-slate-900/90 backdrop-blur-xl py-7 px-5 sm:px-8 shadow-2xl rounded-2xl border border-slate-800/90 ring-1 ring-white/5">
             
             @if(session('info'))
@@ -159,112 +92,7 @@
                 </div>
             @endif
 
-            <!-- 1. Interactive 3-Tier Persona Selector Tabs -->
-            <div class="mb-6">
-                <div class="flex items-center justify-between mb-2.5">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-                        <i class="fa-solid fa-users-gear text-brand-400"></i>
-                        <span>Select Stakeholder Persona for Instant Test:</span>
-                    </span>
-                    <span class="text-[10px] text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20 font-bold uppercase tracking-wider">
-                        Quick Preset
-                    </span>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <!-- Head of Sales Dept (HOD) -->
-                    <button type="button" @click="selectRole('sales_manager')"
-                            :class="selectedRole === 'sales_manager' ? 'bg-indigo-600/30 border-indigo-500 text-white ring-2 ring-indigo-500/40 shadow-md' : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'"
-                            class="p-3 rounded-xl border text-left transition-all relative overflow-hidden group">
-                        <div class="flex items-center space-x-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-xs font-bold shrink-0">
-                                <i class="fa-solid fa-user-tie"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <div class="font-bold text-xs truncate" :class="selectedRole === 'sales_manager' ? 'text-indigo-300' : 'text-slate-200'">Head of Sales (HOD)</div>
-                                <div class="text-[10px] text-slate-400 truncate">Mrs. Funke Williams</div>
-                            </div>
-                        </div>
-                    </button>
-
-                    <!-- Managing Director (Admin) -->
-                    <button type="button" @click="selectRole('admin')"
-                            :class="selectedRole === 'admin' ? 'bg-amber-600/30 border-amber-500 text-white ring-2 ring-amber-500/40 shadow-md' : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'"
-                            class="p-3 rounded-xl border text-left transition-all relative overflow-hidden group">
-                        <div class="flex items-center space-x-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center text-xs font-bold shrink-0">
-                                <i class="fa-solid fa-user-shield"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <div class="font-bold text-xs truncate" :class="selectedRole === 'admin' ? 'text-amber-300' : 'text-slate-200'">Managing Director</div>
-                                <div class="text-[10px] text-slate-400 truncate">Engr. Adekunle Lawal</div>
-                            </div>
-                        </div>
-                    </button>
-
-                    <!-- Field Sales Rep -->
-                    <button type="button" @click="selectRole('field_agent')"
-                            :class="selectedRole === 'field_agent' ? 'bg-emerald-600/30 border-emerald-500 text-white ring-2 ring-emerald-500/40 shadow-md' : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'"
-                            class="p-3 rounded-xl border text-left transition-all relative overflow-hidden group">
-                        <div class="flex items-center space-x-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-xs font-bold shrink-0">
-                                <i class="fa-solid fa-motorcycle"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <div class="font-bold text-xs truncate" :class="selectedRole === 'field_agent' ? 'text-emerald-300' : 'text-slate-200'">Field Sales Rep</div>
-                                <div class="text-[10px] text-slate-400 truncate">Chinedu Okeke</div>
-                            </div>
-                        </div>
-                    </button>
-                </div>
-            </div>
-
-            {{--
-            <!-- 2. Dynamic Role Capabilities & Information Card (Commented out per user request) -->
-            <div class="mb-6 p-4 rounded-xl border bg-slate-950/80 border-slate-800"
-                 :class="selectedRole === 'sales_manager' ? 'border-indigo-500/40' : (selectedRole === 'admin' ? 'border-amber-500/40' : 'border-emerald-500/40')">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-800/80">
-                    <div class="flex items-center space-x-2.5">
-                        <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold border"
-                             :class="roleDetails[selectedRole].iconBg">
-                            <i class="fa-solid" :class="roleDetails[selectedRole].icon"></i>
-                        </div>
-                        <div>
-                            <span class="text-xs font-extrabold text-white" x-text="roleDetails[selectedRole].name"></span>
-                            <span class="text-[10px] px-2 py-0.5 rounded-full border font-bold uppercase ml-1.5"
-                                  :class="roleDetails[selectedRole].badgeClass"
-                                  x-text="roleDetails[selectedRole].badge"></span>
-                        </div>
-                    </div>
-
-                    <!-- 1-Click Fast Direct Login Button -->
-                    <a :href="roleDetails[selectedRole].quickLoginUrl"
-                       class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white transition-all shadow-sm"
-                       :class="selectedRole === 'sales_manager' ? 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/30' : (selectedRole === 'admin' ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-600/30' : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/30')">
-                        <i class="fa-solid fa-bolt-lightning text-xs"></i>
-                        <span>1-Click Instant Login</span>
-                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                    </a>
-                </div>
-
-                <div class="mt-2.5">
-                    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                        What this user can do on the application:
-                    </div>
-                    <ul class="space-y-1 text-xs text-slate-300">
-                        <template x-for="(cap, idx) in roleDetails[selectedRole].capabilities" :key="idx">
-                            <li class="flex items-start space-x-2 text-[11px] leading-relaxed">
-                                <i class="fa-solid fa-circle-check text-xs mt-0.5 shrink-0"
-                                   :class="selectedRole === 'sales_manager' ? 'text-indigo-400' : (selectedRole === 'admin' ? 'text-amber-400' : 'text-emerald-400')"></i>
-                                <span x-text="cap"></span>
-                            </li>
-                        </template>
-                    </ul>
-                </div>
-            </div>
-            --}}
-
-            <!-- 3. Standard Manual Credentials Form -->
+            <!-- Standard Manual Credentials Form -->
             <form action="{{ route('login.post') }}" method="POST" class="space-y-4">
                 @csrf
                 <div>
@@ -273,7 +101,8 @@
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                             <i class="fa-solid fa-envelope text-sm"></i>
                         </div>
-                        <input id="email" name="email" type="email" required x-model="email"
+                        <input id="email" name="email" type="email" required value="{{ old('email') }}"
+                               placeholder="e.g. adekunle@reliableelectrics.ng"
                                class="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all shadow-inner font-mono">
                     </div>
                 </div>
@@ -284,7 +113,8 @@
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                             <i class="fa-solid fa-lock text-sm"></i>
                         </div>
-                        <input id="password" name="password" type="password" required x-model="password"
+                        <input id="password" name="password" type="password" required
+                               placeholder="••••••••"
                                class="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all shadow-inner font-mono">
                     </div>
                 </div>
