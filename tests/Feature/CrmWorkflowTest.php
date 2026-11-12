@@ -188,4 +188,46 @@ class CrmWorkflowTest extends TestCase
         $product->refresh();
         $this->assertEquals($initialStock - 2, $product->stock_quantity);
     }
+
+    public function test_reverse_geocode_requires_authentication(): void
+    {
+        $response = $this->getJson('/reverse-geocode?lat=6.5539&lng=3.3888');
+        $response->assertStatus(401);
+    }
+
+    public function test_reverse_geocode_validates_coordinates(): void
+    {
+        $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create();
+
+        $response = $this->actingAs($agent)->getJson('/reverse-geocode?lat=invalid&lng=invalid');
+        $response->assertStatus(422);
+    }
+
+    public function test_reverse_geocode_returns_clean_address_structure(): void
+    {
+        \Illuminate\Support\Facades\Http::fake([
+            'nominatim.openstreetmap.org/*' => \Illuminate\Support\Facades\Http::response([
+                'display_name' => 'Akerele Street, Ifako, Gbagada, Kosofe, Lagos, Nigeria',
+                'address' => [
+                    'road' => 'Akerele Street',
+                    'suburb' => 'Ifako',
+                    'town' => 'Gbagada',
+                    'county' => 'Kosofe',
+                    'state' => 'Lagos',
+                    'country' => 'Nigeria',
+                ],
+            ], 200),
+        ]);
+
+        $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create();
+
+        $response = $this->actingAs($agent)->getJson('/reverse-geocode?lat=6.5539&lng=3.3888');
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'road' => 'Akerele Street',
+            'city' => 'Gbagada',
+            'state' => 'Lagos',
+        ]);
+    }
 }

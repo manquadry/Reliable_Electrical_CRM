@@ -23,17 +23,59 @@
         <form action="{{ route('customers.store') }}" method="POST" class="p-6 space-y-6" x-data="{
             lat: '',
             lng: '',
+            address: '{{ old('address') }}',
+            city: '{{ old('city', 'Lagos') }}',
+            state: '{{ old('state', 'Lagos State') }}',
+            landmark: '{{ old('landmark') }}',
             locStatus: '',
+            isResolving: false,
+            async resolveAddress(latitude, longitude) {
+                this.isResolving = true;
+                this.locStatus = 'GPS locked: ' + latitude + ', ' + longitude + ' • Resolving address & landmark...';
+                try {
+                    const res = await fetch('{{ route('reverse_geocode') }}?lat=' + latitude + '&lng=' + longitude);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.address) {
+                            this.address = data.address;
+                            if (data.city) this.city = data.city;
+                            if (data.state) this.state = data.state;
+                            if (data.suburb && !this.landmark) this.landmark = 'Near ' + data.suburb;
+                            this.locStatus = '📍 ' + data.address;
+                            this.isResolving = false;
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    try {
+                        const bdc = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+                        if (bdc.ok) {
+                            const data = await bdc.json();
+                            const parts = [data.locality, data.city, data.principalSubdivision].filter(Boolean);
+                            if (parts.length > 0) {
+                                this.address = parts.join(', ');
+                                if (data.city) this.city = data.city;
+                                if (data.principalSubdivision) this.state = data.principalSubdivision;
+                                this.locStatus = '📍 ' + this.address;
+                                this.isResolving = false;
+                                return;
+                            }
+                        }
+                    } catch (err) {}
+                }
+                this.locStatus = 'GPS locked: ' + latitude + ', ' + longitude;
+                this.isResolving = false;
+            },
             getGPS() {
                 if ('geolocation' in navigator) {
                     this.locStatus = 'Retrieving GPS position...';
                     navigator.geolocation.getCurrentPosition((pos) => {
                         this.lat = pos.coords.latitude.toFixed(6);
                         this.lng = pos.coords.longitude.toFixed(6);
-                        this.locStatus = 'GPS locked: ' + this.lat + ', ' + this.lng;
+                        this.resolveAddress(this.lat, this.lng);
                     }, (err) => {
                         this.locStatus = 'GPS error: ' + err.message;
-                    });
+                    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
                 } else {
                     this.locStatus = 'Geolocation not supported';
                 }
@@ -131,34 +173,42 @@
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                             Prominent Landmark
                         </label>
-                        <input type="text" name="landmark" value="{{ old('landmark') }}" placeholder="e.g. Opposite FCMB Bank, Beside Total Filling Station"
+                        <input type="text" name="landmark" x-model="landmark" placeholder="e.g. Opposite FCMB Bank, Beside Total Filling Station"
                                class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-white text-slate-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                            Detailed Physical Address <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" name="address" required value="{{ old('address') }}" placeholder="e.g. Plot 14B Adetokunbo Ademola Street, Victoria Island"
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                                Detailed Physical Address <span class="text-red-500">*</span>
+                            </label>
+                            <span x-show="isResolving" class="text-[10px] text-blue-600 font-semibold animate-pulse" x-cloak>
+                                <i class="fa-solid fa-spinner fa-spin mr-1"></i> Auto-detecting physical address...
+                            </span>
+                        </div>
+                        <input type="text" name="address" required x-model="address" placeholder="e.g. Plot 14B Adetokunbo Ademola Street, Victoria Island"
                                class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-white text-slate-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">City <span class="text-red-500">*</span></label>
-                        <input type="text" name="city" required value="{{ old('city', 'Lagos') }}"
+                        <input type="text" name="city" required x-model="city"
                                class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-white text-slate-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">State <span class="text-red-500">*</span></label>
-                        <input type="text" name="state" required value="{{ old('state', 'Lagos State') }}"
+                        <input type="text" name="state" required x-model="state"
                                class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-white text-slate-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <!-- GPS Coordinates Auto Capture -->
                     <div class="sm:col-span-2 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-bold text-slate-700">GPS Pinpoint for Mapping</span>
+                            <div>
+                                <span class="text-xs font-bold text-slate-700">GPS Pinpoint for Mapping</span>
+                                <p class="text-[10px] text-slate-500">Auto-detects physical address, city, state and landmark.</p>
+                            </div>
                             <button type="button" @click="getGPS()" 
                                     class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-bold flex items-center space-x-1">
                                 <i class="fa-solid fa-location-crosshairs text-[11px]"></i>

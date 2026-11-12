@@ -49,6 +49,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/{customer}', [CustomerController::class, 'update'])->name('update');
     });
 
+    // Reverse Geocoding API for GPS coordinates to address/landmark
+    Route::get('/reverse-geocode', [ActivityController::class, 'reverseGeocode'])->name('reverse_geocode');
+
     // Admin Date-by-Date Daily Activity Tracker & Reports
     Route::prefix('activities')->name('activities.')->group(function () {
         Route::get('/daily', [ActivityController::class, 'dailyTracker'])->name('daily');

@@ -23,18 +23,52 @@
             hasGPS: false,
             lat: '',
             lng: '',
+            address: '{{ old('location_address') }}',
             locStatus: '',
+            isResolving: false,
+            async resolveAddress(latitude, longitude) {
+                this.isResolving = true;
+                this.locStatus = 'GPS locked: ' + latitude + ', ' + longitude + ' • Resolving physical address...';
+                try {
+                    const res = await fetch('{{ route('reverse_geocode') }}?lat=' + latitude + '&lng=' + longitude);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.address) {
+                            this.address = data.address;
+                            this.locStatus = '📍 ' + data.address;
+                            this.isResolving = false;
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    try {
+                        const bdc = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+                        if (bdc.ok) {
+                            const data = await bdc.json();
+                            const parts = [data.locality, data.city, data.principalSubdivision].filter(Boolean);
+                            if (parts.length > 0) {
+                                this.address = parts.join(', ');
+                                this.locStatus = '📍 ' + this.address;
+                                this.isResolving = false;
+                                return;
+                            }
+                        }
+                    } catch (err) {}
+                }
+                this.locStatus = 'GPS locked: ' + latitude + ', ' + longitude;
+                this.isResolving = false;
+            },
             getLocation() {
                 if ('geolocation' in navigator) {
-                    this.locStatus = 'Locating GPS coordinates...';
+                    this.locStatus = 'Locating GPS position...';
                     navigator.geolocation.getCurrentPosition((pos) => {
                         this.lat = pos.coords.latitude.toFixed(6);
                         this.lng = pos.coords.longitude.toFixed(6);
                         this.hasGPS = true;
-                        this.locStatus = 'GPS locked: ' + this.lat + ', ' + this.lng;
+                        this.resolveAddress(this.lat, this.lng);
                     }, (err) => {
                         this.locStatus = 'GPS unavailable (' + err.message + ')';
-                    });
+                    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
                 } else {
                     this.locStatus = 'Geolocation not supported by browser';
                 }
@@ -167,9 +201,22 @@
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-0.5">Physical Location Address / Landmark</label>
-                    <input type="text" name="location_address" placeholder="e.g. 42 Allen Avenue, Ikeja, Lagos"
-                           class="w-full px-3 py-1.5 border border-slate-300 rounded-lg bg-white text-xs text-slate-800">
+                    <div class="flex items-center justify-between mb-0.5">
+                        <label class="block text-[11px] font-semibold text-slate-500">Physical Location Address / Landmark</label>
+                        <span x-show="isResolving" class="text-[10px] text-blue-600 font-semibold animate-pulse" x-cloak>
+                            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Auto-detecting landmark...
+                        </span>
+                    </div>
+                    <div class="relative">
+                        <input type="text" name="location_address" x-model="address" placeholder="e.g. 42 Allen Avenue, Ikeja, Lagos"
+                               class="w-full px-3 py-1.5 border border-slate-300 rounded-lg bg-white text-xs text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <button type="button" x-show="address" @click="address = ''" class="absolute right-2 top-1.5 text-slate-400 hover:text-slate-600 text-xs" title="Clear">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-0.5">
+                        Automatically generated from live GPS coordinates. You can append specific details like shop/suite number or landmark.
+                    </p>
                 </div>
             </div>
 

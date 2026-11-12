@@ -320,4 +320,123 @@ class ActivityController extends Controller
         return redirect()->route('activities.daily')
             ->with('success', 'Field activity logged successfully for ' . Carbon::parse($activity->activity_date)->format('M d, Y') . '!');
     }
+
+    /**
+     * Live reverse-geocode latitude and longitude into physical address/landmark.
+     * Caches requests to prevent duplicate network calls.
+     */
+    public function reverseGeocode(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $lat = $request->query('lat');
+        $lng = $request->query('lng');
+
+        if (!is_numeric($lat) || !is_numeric($lng)) {
+            return response()->json(['success' => false, 'message' => 'Invalid coordinates'], 422);
+        }
+
+        $latRound = round((float) $lat, 4);
+        $lngRound = round((float) $lng, 4);
+        $cacheKey = "revgeo_{$latRound}_{$lngRound}";
+
+        $result = \Illuminate\Support\Facades\Cache::remember($cacheKey, 86400, function () use ($latRound, $lngRound) {
+            try {
+                // Provider 1: OpenStreetMap Nominatim
+                $response = \Illuminate\Support\Facades\Http::timeout(4)
+                    ->withUserAgent('ReliableElectricsCRM/1.0 (admin@reliableelectrics.ng)')
+                    ->get('https://nominatim.openstreetmap.org/reverse', [
+                        'format' => 'jsonv2',
+                        'lat' => $latRound,
+                        'lon' => $lngRound,
+                        'addressdetails' => 1,
+                    ]);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    $addr = $data['address'] ?? [];
+
+                    $parts = [];
+                    if (!empty($addr['house_number']) && !empty($addr['road'])) {
+                        $parts[] = $addr['house_number'] . ' ' . $addr['road'];
+                    } elseif (!empty($addr['road'])) {
+                        $parts[] = $addr['road'];
+                    } elseif (!empty($addr['neighbourhood'])) {
+                        $parts[] = $addr['neighbourhood'];
+                    }
+
+                    if (!empty($addr['suburb']) && !in_array($addr['suburb'], $parts)) {
+                        $parts[] = $addr['suburb'];
+                    }
+                    if (!empty($addr['town']) && !in_array($addr['town'], $parts)) {
+                        $parts[] = $addr['town'];
+                    } elseif (!empty($addr['city']) && !in_array($addr['city'], $parts)) {
+                        $parts[] = $addr['city'];
+                    } elseif (!empty($addr['county']) && !in_array($addr['county'], $parts)) {
+                        $parts[] = $addr['county'];
+                    }
+                    if (!empty($addr['state'])) {
+                        $parts[] = $addr['state'];
+                    }
+
+                    $formatted = !empty($parts) ? implode(', ', $parts) : ($data['display_name'] ?? '');
+
+                    return [
+                        'success' => true,
+                        'address' => $formatted,
+                        'road' => $addr['road'] ?? '',
+                        'suburb' => $addr['suburb'] ?? $addr['neighbourhood'] ?? '',
+                        'city' => $addr['town'] ?? $addr['city'] ?? $addr['county'] ?? 'Lagos',
+                        'state' => $addr['state'] ?? 'Lagos State',
+                        'source' => 'nominatim',
+                    ];
+                }
+            } catch (\Throwable $e) {
+                // Continue to fallback
+            }
+
+            try {
+                // Provider 2 Fallback: BigDataCloud Reverse Geocoding Client API
+                $response = \Illuminate\Support\Facades\Http::timeout(4)
+                    ->withUserAgent('ReliableElectricsCRM/1.0')
+                    ->get('https://api.bigdatacloud.net/data/reverse-geocode-client', [
+                        'latitude' => $latRound,
+                        'longitude' => $lngRound,
+                        'localityLanguage' => 'en',
+                    ]);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    $parts = array_filter([
+                        $data['locality'] ?? '',
+                        $data['city'] ?? '',
+                        $data['principalSubdivision'] ?? '',
+                        $data['countryName'] ?? 'Nigeria',
+                    ]);
+
+                    return [
+                        'success' => true,
+                        'address' => implode(', ', array_unique($parts)),
+                        'road' => '',
+                        'suburb' => $data['locality'] ?? '',
+                        'city' => $data['city'] ?? $data['locality'] ?? 'Lagos',
+                        'state' => $data['principalSubdivision'] ?? 'Lagos',
+                        'source' => 'bigdatacloud',
+                    ];
+                }
+            } catch (\Throwable $e) {
+                // Fallback to coordinates
+            }
+
+            return [
+                'success' => true,
+                'address' => "Near Coordinates ({$latRound}, {$lngRound})",
+                'road' => '',
+                'suburb' => '',
+                'city' => 'Lagos',
+                'state' => 'Lagos State',
+                'source' => 'fallback',
+            ];
+        });
+
+        return response()->json($result);
+    }
 }
