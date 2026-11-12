@@ -86,6 +86,11 @@ class User extends Authenticatable
         return $this->isAdmin() || $this->isSalesManager();
     }
 
+    public function isManagerOrAdmin(): bool
+    {
+        return $this->isAdmin() || $this->isSalesManager();
+    }
+
     public function canManageAgents(): bool
     {
         return $this->isLeadOrAdmin();

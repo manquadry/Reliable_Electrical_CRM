@@ -116,6 +116,19 @@ class CrmWorkflowTest extends TestCase
         $response = $this->actingAs($agent)->post('/customers', $customerData);
         $response->assertRedirect();
 
+        $newCustomer = Customer::where('customer_code', 'CUST-TEST-888')->firstOrFail();
+
+        // Verify that the customer show page renders without errors for field agent
+        $showResponseAgent = $this->actingAs($agent)->get("/customers/{$newCustomer->id}");
+        $showResponseAgent->assertStatus(200);
+        $showResponseAgent->assertSee('Lekki Smart Homes Electrical Depot');
+
+        // Verify that the customer show page renders without errors for admin with territory allocation card
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+        $showResponseAdmin = $this->actingAs($admin)->get("/customers/{$newCustomer->id}");
+        $showResponseAdmin->assertStatus(200);
+        $showResponseAdmin->assertSee('Field Sales Rep Territory Allocation');
+
         $this->assertDatabaseHas('customers', [
             'customer_code' => 'CUST-TEST-888',
             'onboarded_by' => $agent->id,
