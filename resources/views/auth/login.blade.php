@@ -219,7 +219,8 @@
                 </div>
             </div>
 
-            <!-- 2. Dynamic Role Capabilities & Information Card -->
+            {{--
+            <!-- 2. Dynamic Role Capabilities & Information Card (Commented out per user request) -->
             <div class="mb-6 p-4 rounded-xl border bg-slate-950/80 border-slate-800"
                  :class="selectedRole === 'sales_manager' ? 'border-indigo-500/40' : (selectedRole === 'admin' ? 'border-amber-500/40' : 'border-emerald-500/40')">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-800/80">
@@ -261,6 +262,7 @@
                     </ul>
                 </div>
             </div>
+            --}}
 
             <!-- 3. Standard Manual Credentials Form -->
             <form action="{{ route('login.post') }}" method="POST" class="space-y-4">
