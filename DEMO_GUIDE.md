@@ -24,6 +24,18 @@
 | **Field Executive (Alaba)** | Emeka Nnamdi | `emeka@reliableelectrics.ng` | `REL-FE-103` | Alaba Int'l & Trade Fair |
 | **Field Executive (Mainland)**| Tunde Balogun | `tunde@reliableelectrics.ng` | `REL-FE-104` | Gbagada, Ogudu, Anthony & Shomolu |
 
+> [!IMPORTANT]
+> **Head of Sales Department (HOD) — Quick Login & Core Capabilities**:
+> - **Login Email**: `lead@reliableelectrics.ng` | **Default Password**: `password`
+> - **1-Click Instant Login**: Available on the `/login` screen via the role switcher or demo profile list.
+> - **What the Head of Sales Department Can Do**:
+>   1. **Supervise Field Executives**: Real-time command dashboard showing live visit compliance, customer onboarding velocity, and revenue attainment vs quota across all Lagos territories.
+>   2. **Onboard New Field Sales Representatives (`/agents/create`)**: Directly recruit new agents into the department. Set assigned territory, allocated company vehicle (Motorbike/Sedan/Van), daily visit quota, and revenue targets.
+>   3. **Reassign Territories & Manage Quotas (`/agents/{id}`)**: Update rep profiles, reassign sales corridors, and adjust monthly benchmarks.
+>   4. **Date-by-Date Field Activity & Route Audit (`/activities/daily`)**: Inspect every rep's daily movements, live satellite GPS coordinates, auto-resolved physical street landmarks, and meeting discussion notes.
+>   5. **Commercial Order Approvals & Waybills (`/orders`)**: Inspect sales orders booked by reps, approve orders (`Pending Approval` → `Approved` → `Dispatched`), and view printable warehouse delivery waybills.
+>   6. **Team Audit Reports & CSV Export (`/activities/report`)**: Compare agent performance scorecards and export CSV logs for executive reviews.
+
 ---
 
 ## 2. Stakeholder Matrix & Responsibilities
