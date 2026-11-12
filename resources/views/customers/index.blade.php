@@ -17,11 +17,21 @@
             <p class="text-xs text-slate-500 mt-0.5">Directory of verified retail shops, electrical contractors, lighting showrooms, and wholesale distributors.</p>
         </div>
 
-        <a href="{{ route('customers.create') }}" 
-           class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold shadow-md shadow-brand-600/30 hover:shadow-brand-600/50 transition-all shrink-0">
-            <i class="fa-solid fa-plus"></i>
-            <span>Onboard New Customer</span>
-        </a>
+        <div class="flex items-center space-x-2 shrink-0">
+            @if(Auth::user()->isManagerOrAdmin())
+                <a href="{{ route('customers.import_form') }}" 
+                   class="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md transition-all">
+                    <i class="fa-solid fa-file-excel text-emerald-400"></i>
+                    <span>Import Excel / CSV</span>
+                </a>
+            @endif
+
+            <a href="{{ route('customers.create') }}" 
+               class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold shadow-md shadow-brand-600/30 hover:shadow-brand-600/50 transition-all">
+                <i class="fa-solid fa-plus"></i>
+                <span>Onboard New Customer</span>
+            </a>
+        </div>
     </div>
 
     <!-- Search & Filter Card -->
@@ -51,9 +61,16 @@
 
             <div>
                 <select name="agent_id" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-white text-slate-800 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none transition-all">
-                    <option value="">Onboarded By (Any)</option>
+                    <option value="">Assigned Rep (All)</option>
+                    @if(isset($unassignedCount) && $unassignedCount > 0)
+                        <option value="unassigned" {{ request('agent_id') === 'unassigned' ? 'selected' : '' }}>
+                            ⚠️ Unassigned (HQ Pool) ({{ $unassignedCount }})
+                        </option>
+                    @endif
                     @foreach($agents as $ag)
-                        <option value="{{ $ag->id }}" {{ request('agent_id') == $ag->id ? 'selected' : '' }}>{{ $ag->name }}</option>
+                        <option value="{{ $ag->id }}" {{ request('agent_id') == $ag->id ? 'selected' : '' }}>
+                            {{ $ag->name }} &bull; {{ $ag->agent_code }}
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -125,12 +142,17 @@
                             </td>
                             <td class="py-3.5 px-4 whitespace-nowrap">
                                 @if($c->onboardedBy)
-                                    <a href="{{ route('agents.show', $c->onboardedBy) }}" class="font-bold text-slate-800 hover:text-brand-600 transition-colors">
-                                        {{ $c->onboardedBy->name }}
-                                    </a>
-                                    <div class="text-[10px] text-slate-400 font-mono">{{ $c->onboardedBy->agent_code }}</div>
+                                    <div>
+                                        <a href="{{ route('agents.show', $c->onboardedBy) }}" class="font-bold text-slate-800 hover:text-brand-600 transition-colors">
+                                            {{ $c->onboardedBy->name }}
+                                        </a>
+                                        <div class="text-[10px] text-slate-400 font-mono">{{ $c->onboardedBy->agent_code }}</div>
+                                    </div>
                                 @else
-                                    <span class="text-slate-400">-</span>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 inline-flex items-center space-x-1">
+                                        <i class="fa-solid fa-triangle-exclamation text-[9px]"></i>
+                                        <span>Unassigned</span>
+                                    </span>
                                 @endif
                             </td>
                             <td class="py-3.5 px-4 text-center font-bold text-slate-800 whitespace-nowrap">

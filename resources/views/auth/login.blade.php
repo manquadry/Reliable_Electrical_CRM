@@ -134,7 +134,8 @@
                 </button>
             </form>
 
-            <!-- 4. 1-Click Directory List -->
+            {{-- 
+            <!-- 4. 1-Click Directory List (Commented out for clean production login) -->
             <div class="mt-7 pt-5 border-t border-slate-800">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center space-x-2">
@@ -180,6 +181,7 @@
                     @endforeach
                 </div>
             </div>
+            --}}
 
             <!-- Enterprise Trust Badges -->
             <div class="mt-6 pt-5 border-t border-slate-800/80 flex items-center justify-around text-[10px] text-slate-400">

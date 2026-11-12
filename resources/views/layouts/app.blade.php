@@ -229,14 +229,20 @@
                     <div class="pt-5 px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">Distribution Network</div>
 
                     <a href="{{ route('customers.index') }}" 
-                       class="group flex items-center px-3 py-2.5 rounded-xl font-medium transition-all duration-150 {{ request()->routeIs('customers.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 font-semibold' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white' }}">
-                        <div class="w-6 text-center mr-2.5 {{ request()->routeIs('customers.*') ? 'text-white' : 'text-cyan-400 group-hover:text-cyan-300' }}">
+                       class="group flex items-center px-3 py-2.5 rounded-xl font-medium transition-all duration-150 {{ request()->routeIs('customers.index') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 font-semibold' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white' }}">
+                        <div class="w-6 text-center mr-2.5 {{ request()->routeIs('customers.index') ? 'text-white' : 'text-cyan-400 group-hover:text-cyan-300' }}">
                             <i class="fa-solid fa-shop text-sm"></i>
                         </div>
                         <div class="flex-1 flex items-center justify-between">
                             <span>Customers & Stores</span>
                             <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">All Lagos</span>
                         </div>
+                    </a>
+
+                    <a href="{{ route('customers.import_form') }}" 
+                       class="group flex items-center px-3 py-2 rounded-xl text-xs font-medium transition-all duration-150 {{ request()->routeIs('customers.import*') ? 'bg-slate-800 text-emerald-400 font-semibold' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200' }} ml-4">
+                        <i class="fa-solid fa-file-excel mr-2 text-emerald-400 text-xs"></i>
+                        <span>Import Excel / CSV</span>
                     </a>
 
                     <a href="{{ route('orders.index') }}" 
@@ -314,14 +320,20 @@
                     <div class="pt-5 px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">Territory & Operations</div>
 
                     <a href="{{ route('customers.index') }}" 
-                       class="group flex items-center px-3 py-2.5 rounded-xl font-medium transition-all duration-150 {{ request()->routeIs('customers.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 font-semibold' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white' }}">
-                        <div class="w-6 text-center mr-2.5 {{ request()->routeIs('customers.*') ? 'text-white' : 'text-cyan-400 group-hover:text-cyan-300' }}">
+                       class="group flex items-center px-3 py-2.5 rounded-xl font-medium transition-all duration-150 {{ request()->routeIs('customers.index') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 font-semibold' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white' }}">
+                        <div class="w-6 text-center mr-2.5 {{ request()->routeIs('customers.index') ? 'text-white' : 'text-cyan-400 group-hover:text-cyan-300' }}">
                             <i class="fa-solid fa-shop text-sm"></i>
                         </div>
                         <div class="flex-1 flex items-center justify-between">
                             <span>Customers & Stores</span>
                             <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">All Lagos</span>
                         </div>
+                    </a>
+
+                    <a href="{{ route('customers.import_form') }}" 
+                       class="group flex items-center px-3 py-2 rounded-xl text-xs font-medium transition-all duration-150 {{ request()->routeIs('customers.import*') ? 'bg-slate-800 text-emerald-400 font-semibold' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200' }} ml-4">
+                        <i class="fa-solid fa-file-excel mr-2 text-emerald-400 text-xs"></i>
+                        <span>Import Excel / CSV</span>
                     </a>
 
                     <a href="{{ route('orders.index') }}" 

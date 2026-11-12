@@ -83,7 +83,7 @@
             </div>
 
             <div class="bg-white p-3.5 rounded-xl border border-blue-100">
-                <span class="text-[10px] font-bold uppercase text-slate-400 block">Onboarded By Field Executive</span>
+                <span class="text-[10px] font-bold uppercase text-slate-400 block">Assigned Field Sales Rep</span>
                 @if($customer->onboardedBy)
                     <a href="{{ route('agents.show', $customer->onboardedBy) }}" class="text-sm font-extrabold text-purple-700 hover:underline mt-0.5 block">
                         {{ $customer->onboardedBy->name }}
@@ -92,7 +92,8 @@
                         Code: {{ $customer->onboardedBy->agent_code }} &bull; {{ $customer->onboardedBy->territory }}
                     </span>
                 @else
-                    <span class="text-sm font-bold text-slate-700 mt-0.5 block">Headquarters / Admin</span>
+                    <span class="text-sm font-extrabold text-amber-700 mt-0.5 block">⚠️ Unassigned (HQ Pool)</span>
+                    <span class="text-[11px] text-slate-400 font-medium">Available for allocation</span>
                 @endif
             </div>
 
@@ -121,6 +122,68 @@
 
         </div>
     </div>
+
+    @if(Auth::user()->isManagerOrAdmin())
+        <!-- Admin & Sales Lead: Attach / Reassign / Remove Customer from Field Sales Rep -->
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm shrink-0">
+                        <i class="fa-solid fa-user-pen"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900">
+                            Field Sales Rep Territory Allocation
+                        </h3>
+                        <p class="text-[11px] text-slate-500">
+                            Attach this customer to a Field Sales Representative of your choice, or remove them from their current rep.
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    @if($customer->isAssigned())
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center space-x-1">
+                            <i class="fa-solid fa-circle-check text-[10px]"></i>
+                            <span>Attached to: {{ $customer->onboardedBy?->name }}</span>
+                        </span>
+                    @else
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 inline-flex items-center space-x-1">
+                            <i class="fa-solid fa-triangle-exclamation text-[10px]"></i>
+                            <span>Unassigned Customer</span>
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            <form action="{{ route('customers.reassign', $customer) }}" method="POST" class="mt-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                @csrf
+                @method('PATCH')
+                <div class="flex-1">
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Select Field Sales Representative</label>
+                    <select name="agent_id" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        <option value="">-- Remove from Rep (Move to Unassigned HQ Pool) --</option>
+                        @foreach(App\Models\User::where('role', 'field_agent')->where('status', 'active')->orderBy('name')->get() as $agent)
+                            <option value="{{ $agent->id }}" {{ $customer->onboarded_by == $agent->id ? 'selected' : '' }}>
+                                {{ $agent->name }} &bull; {{ $agent->agent_code }} ({{ $agent->territory }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="sm:pt-5 flex items-center space-x-2">
+                    <button type="submit" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center space-x-1.5">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Save Assignment</span>
+                    </button>
+                    @if($customer->isAssigned())
+                        <button type="submit" name="agent_id" value="" class="px-3.5 py-2 border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5" title="Remove customer from rep">
+                            <i class="fa-solid fa-user-xmark"></i>
+                            <span>Remove Rep</span>
+                        </button>
+                    @endif
+                </div>
+            </form>
+        </div>
+    @endif
 
     <!-- 3 Financial Overview Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">

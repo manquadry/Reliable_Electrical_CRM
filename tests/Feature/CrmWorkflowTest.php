@@ -470,4 +470,160 @@ class CrmWorkflowTest extends TestCase
         $showResponse->assertSee('Walk-in Counter Sale');
         $showResponse->assertSee('Engr. Taiwo Adeleke');
     }
+
+    public function test_admin_and_sales_lead_can_access_customer_import_page(): void
+    {
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+        $lead = User::where('role', 'sales_manager')->first() ?? User::factory()->create(['role' => 'sales_manager']);
+
+        $responseAdmin = $this->actingAs($admin)->get('/customers/import');
+        $responseAdmin->assertStatus(200);
+        $responseAdmin->assertSee('Import Customers from Excel / CSV Sheet');
+
+        $responseLead = $this->actingAs($lead)->get('/customers/import');
+        $responseLead->assertStatus(200);
+        $responseLead->assertSee('Import Customers from Excel / CSV Sheet');
+    }
+
+    public function test_field_agent_cannot_access_customer_import_page(): void
+    {
+        $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+
+        $response = $this->actingAs($agent)->get('/customers/import');
+        $response->assertStatus(403);
+    }
+
+    public function test_download_sample_customer_import_template_csv(): void
+    {
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get('/customers/template/download');
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Disposition', 'attachment; filename="reliable_customers_import_template.csv"');
+        $this->assertStringContainsString('Company / Store Name', $response->getContent());
+        $this->assertStringContainsString('Primary Phone', $response->getContent());
+    }
+
+    public function test_import_customers_from_csv_spreadsheet(): void
+    {
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+        $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+
+        $csvContent = "Company Name,Contact Person,Phone,Category,Territory,Address,Assigned Agent Code\n" .
+                      "Konga Electro Hub,Engr. Femi,08099887766,retailer,Yaba Corridor,12 Commercial Ave Yaba,{$agent->agent_code}\n" .
+                      "Alaba Direct Solar,Chief Obi,08122334455,wholesaler,Alaba Market,Block 5 Alaba Market,\n";
+
+        $file = \Illuminate\Http\UploadedFile::fake()->createWithContent('test_customers.csv', $csvContent);
+
+        $response = $this->actingAs($admin)->post('/customers/import', [
+            'spreadsheet' => $file,
+            'default_agent_id' => $agent->id,
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect('/customers');
+
+        $this->assertDatabaseHas('customers', [
+            'company_name' => 'Konga Electro Hub',
+            'phone' => '08099887766',
+            'onboarded_by' => $agent->id,
+        ]);
+
+        $this->assertDatabaseHas('customers', [
+            'company_name' => 'Alaba Direct Solar',
+            'phone' => '08122334455',
+            'onboarded_by' => $agent->id, // Defaulted to $agent
+        ]);
+    }
+
+    public function test_admin_can_reassign_and_remove_customer_from_field_sales_rep(): void
+    {
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+        $agent1 = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+        $agent2 = User::where('role', 'field_agent')->skip(1)->first() ?? User::factory()->create(['role' => 'field_agent', 'email' => 'agent2@reliable.ng']);
+
+        $customer = Customer::create([
+            'company_name' => 'Reassignment Test Store',
+            'customer_code' => 'CUST-REASSIGN-' . time(),
+            'contact_person' => 'Proprietor',
+            'phone' => '08011223344',
+            'category' => 'retailer',
+            'territory' => 'Ikeja',
+            'address' => 'Test Address',
+            'city' => 'Lagos',
+            'state' => 'Lagos State',
+            'credit_limit' => 0,
+            'payment_terms' => 'cash_on_delivery',
+            'onboarded_by' => $agent1->id,
+            'onboarded_date' => Carbon::now()->toDateString(),
+        ]);
+
+        $this->assertEquals($agent1->id, $customer->fresh()->onboarded_by);
+
+        // 1. Reassign to Agent 2
+        $response1 = $this->actingAs($admin)->patch("/customers/{$customer->id}/reassign", [
+            'agent_id' => $agent2->id,
+        ]);
+        $response1->assertRedirect();
+        $this->assertEquals($agent2->id, $customer->fresh()->onboarded_by);
+
+        // 2. Remove from Agent (Move to unassigned pool)
+        $response2 = $this->actingAs($admin)->patch("/customers/{$customer->id}/reassign", [
+            'agent_id' => '',
+        ]);
+        $response2->assertRedirect();
+        $this->assertNull($customer->fresh()->onboarded_by);
+        $this->assertFalse($customer->fresh()->isAssigned());
+    }
+
+    public function test_admin_can_bulk_assign_customers_to_rep(): void
+    {
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+        $agent = User::where('role', 'field_agent')->first() ?? User::factory()->create(['role' => 'field_agent']);
+
+        $c1 = Customer::create([
+            'company_name' => 'Bulk Store 1',
+            'customer_code' => 'CUST-B1-' . time(),
+            'contact_person' => 'Person 1',
+            'phone' => '08011112222',
+            'category' => 'retailer',
+            'territory' => 'Lekki',
+            'address' => 'Lekki Address 1',
+            'city' => 'Lagos',
+            'state' => 'Lagos State',
+            'credit_limit' => 0,
+            'payment_terms' => 'cash_on_delivery',
+            'onboarded_by' => null,
+            'onboarded_date' => Carbon::now()->toDateString(),
+        ]);
+
+        $c2 = Customer::create([
+            'company_name' => 'Bulk Store 2',
+            'customer_code' => 'CUST-B2-' . time(),
+            'contact_person' => 'Person 2',
+            'phone' => '08033334444',
+            'category' => 'wholesaler',
+            'territory' => 'Lekki',
+            'address' => 'Lekki Address 2',
+            'city' => 'Lagos',
+            'state' => 'Lagos State',
+            'credit_limit' => 0,
+            'payment_terms' => 'cash_on_delivery',
+            'onboarded_by' => null,
+            'onboarded_date' => Carbon::now()->toDateString(),
+        ]);
+
+        $this->assertNull($c1->fresh()->onboarded_by);
+        $this->assertNull($c2->fresh()->onboarded_by);
+
+        // Bulk assign both to $agent
+        $response = $this->actingAs($admin)->post('/customers/bulk-assign', [
+            'customer_ids' => [$c1->id, $c2->id],
+            'agent_id' => $agent->id,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertEquals($agent->id, $c1->fresh()->onboarded_by);
+        $this->assertEquals($agent->id, $c2->fresh()->onboarded_by);
+    }
 }

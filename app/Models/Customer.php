@@ -51,6 +51,21 @@ class Customer extends Model
         return $this->belongsTo(User::class, 'onboarded_by');
     }
 
+    public function isAssigned(): bool
+    {
+        return !is_null($this->onboarded_by);
+    }
+
+    public function assignTo(?int $userId): bool
+    {
+        return $this->update(['onboarded_by' => $userId]);
+    }
+
+    public function unassign(): bool
+    {
+        return $this->update(['onboarded_by' => null]);
+    }
+
     public function activities(): HasMany
     {
         return $this->hasMany(FieldActivity::class);

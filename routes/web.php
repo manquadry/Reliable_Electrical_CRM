@@ -44,6 +44,26 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [CustomerController::class, 'index'])->name('index');
         Route::get('/create', [CustomerController::class, 'create'])->name('create');
         Route::post('/', [CustomerController::class, 'store'])->name('store');
+
+        // Excel / CSV Bulk Customer Upload & Template (Admin & Sales Lead)
+        Route::get('/import', [CustomerController::class, 'importForm'])
+            ->name('import_form')
+            ->middleware('manager_or_admin');
+        Route::post('/import', [CustomerController::class, 'importProcess'])
+            ->name('import_process')
+            ->middleware('manager_or_admin');
+        Route::get('/template/download', [CustomerController::class, 'downloadTemplate'])
+            ->name('download_template')
+            ->middleware('manager_or_admin');
+
+        // Field Sales Rep Assignment & Bulk Allocation (Admin & Sales Lead)
+        Route::patch('/{customer}/reassign', [CustomerController::class, 'reassignAgent'])
+            ->name('reassign')
+            ->middleware('manager_or_admin');
+        Route::post('/bulk-assign', [CustomerController::class, 'bulkAssign'])
+            ->name('bulk_assign')
+            ->middleware('manager_or_admin');
+
         Route::get('/{customer}', [CustomerController::class, 'show'])->name('show');
         Route::get('/{customer}/edit', [CustomerController::class, 'edit'])->name('edit');
         Route::put('/{customer}', [CustomerController::class, 'update'])->name('update');
