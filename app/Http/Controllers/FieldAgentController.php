@@ -119,15 +119,17 @@ class FieldAgentController extends Controller
 
         // Performance Calculations
         $monthRevenue = (float) Order::where('user_id', $agent->id)
-            ->whereBetween('order_date', [$startOfMonth, $endOfMonth])
+            ->whereDate('order_date', '>=', $startOfMonth)
+            ->whereDate('order_date', '<=', $endOfMonth)
             ->sum('total_amount');
 
         $monthOnboardCount = Customer::where('onboarded_by', $agent->id)
-            ->whereBetween('onboarded_date', [$startOfMonth, $endOfMonth])
+            ->whereDate('onboarded_date', '>=', $startOfMonth)
+            ->whereDate('onboarded_date', '<=', $endOfMonth)
             ->count();
 
         $todayVisitsCount = FieldActivity::where('user_id', $agent->id)
-            ->where('activity_date', $today)
+            ->whereDate('activity_date', $today)
             ->count();
 
         $revenuePercent = $agent->monthly_revenue_target > 0

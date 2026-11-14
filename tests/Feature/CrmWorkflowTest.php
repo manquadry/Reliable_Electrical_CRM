@@ -40,7 +40,20 @@ class CrmWorkflowTest extends TestCase
     public function test_admin_daily_activity_tracker_renders_by_date(): void
     {
         $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+        $agent = User::where('role', 'field_agent')->where('status', 'active')->first()
+            ?? User::factory()->create(['role' => 'field_agent', 'status' => 'active']);
         $today = Carbon::today()->toDateString();
+
+        if (!FieldActivity::whereDate('activity_date', $today)->where('user_id', $agent->id)->exists()) {
+            FieldActivity::create([
+                'user_id' => $agent->id,
+                'activity_date' => $today,
+                'check_in_time' => '09:00:00',
+                'activity_type' => 'store_visit',
+                'purpose' => 'Daily tracker baseline check-in',
+                'outcome' => 'prospect_interested',
+            ]);
+        }
 
         $response = $this->actingAs($admin)->get('/activities/daily?date=' . $today);
         $response->assertStatus(200);
@@ -893,5 +906,38 @@ class CrmWorkflowTest extends TestCase
         $order->refresh();
         $this->assertEquals(100000, (float)$order->paid_amount);
         $this->assertEquals('fully_paid', $order->payment_status);
+    }
+
+    public function test_dashboard_and_activity_report_include_todays_records_inclusively(): void
+    {
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+        $agent = User::where('role', 'field_agent')->where('status', 'active')->first()
+            ?? User::factory()->create(['role' => 'field_agent', 'status' => 'active']);
+        $today = Carbon::today()->toDateString();
+
+        $purpose = 'Inclusive End-Date Audit Visit ' . uniqid();
+        FieldActivity::create([
+            'user_id' => $agent->id,
+            'activity_date' => $today,
+            'check_in_time' => '10:15:00',
+            'activity_type' => 'store_visit',
+            'purpose' => $purpose,
+            'outcome' => 'order_taken',
+        ]);
+
+        // Dashboard shows non-zero today visits
+        $dashAdmin = $this->actingAs($admin)->get('/dashboard');
+        $dashAdmin->assertStatus(200);
+        $dashAdmin->assertSee('GPS Verified');
+
+        // Agent dashboard includes today's check-in
+        $dashAgent = $this->actingAs($agent)->get('/dashboard');
+        $dashAgent->assertStatus(200);
+        $dashAgent->assertSee($purpose);
+
+        // Activity report ending today includes today's check-in
+        $report = $this->actingAs($admin)->get('/activities/report?start_date=' . Carbon::today()->startOfMonth()->toDateString() . '&end_date=' . $today);
+        $report->assertStatus(200);
+        $report->assertSee($purpose);
     }
 }

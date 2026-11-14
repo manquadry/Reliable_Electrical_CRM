@@ -27,10 +27,10 @@ class DashboardController extends Controller
             $totalAgents = User::where('role', 'field_agent')->count();
             $totalActiveAgents = User::where('role', 'field_agent')->where('status', 'active')->count();
             $totalCustomers = Customer::count();
-            $newCustomersThisMonth = Customer::whereBetween('onboarded_date', [$startOfMonth, $endOfMonth])->count();
-            $visitsToday = FieldActivity::where('activity_date', $today)->count();
-            $ordersThisMonth = Order::whereBetween('order_date', [$startOfMonth, $endOfMonth])->sum('total_amount');
-            $collectionsThisMonth = Payment::whereBetween('payment_date', [$startOfMonth, $endOfMonth])->where('status', 'confirmed')->sum('amount');
+            $newCustomersThisMonth = Customer::whereDate('onboarded_date', '>=', $startOfMonth)->whereDate('onboarded_date', '<=', $endOfMonth)->count();
+            $visitsToday = FieldActivity::whereDate('activity_date', $today)->count();
+            $ordersThisMonth = Order::whereDate('order_date', '>=', $startOfMonth)->whereDate('order_date', '<=', $endOfMonth)->sum('total_amount');
+            $collectionsThisMonth = Payment::whereDate('payment_date', '>=', $startOfMonth)->whereDate('payment_date', '<=', $endOfMonth)->where('status', 'confirmed')->sum('amount');
 
             // Today's activities
             $recentActivities = FieldActivity::with(['user', 'customer'])
@@ -43,16 +43,17 @@ class DashboardController extends Controller
             $fieldAgents = User::where('role', 'field_agent')
                 ->withCount([
                     'activities as today_visits_count' => function ($query) use ($today) {
-                        $query->where('activity_date', $today);
+                        $query->whereDate('activity_date', $today);
                     },
                     'onboardedCustomers as month_onboards_count' => function ($query) use ($startOfMonth, $endOfMonth) {
-                        $query->whereBetween('onboarded_date', [$startOfMonth, $endOfMonth]);
+                        $query->whereDate('onboarded_date', '>=', $startOfMonth)->whereDate('onboarded_date', '<=', $endOfMonth);
                     },
                 ])
                 ->get()
                 ->map(function ($agent) use ($startOfMonth, $endOfMonth) {
                     $agent->month_revenue = (float) Order::where('user_id', $agent->id)
-                        ->whereBetween('order_date', [$startOfMonth, $endOfMonth])
+                        ->whereDate('order_date', '>=', $startOfMonth)
+                        ->whereDate('order_date', '<=', $endOfMonth)
                         ->sum('total_amount');
                     $agent->revenue_target_percent = $agent->monthly_revenue_target > 0
                         ? min(100, round(($agent->month_revenue / $agent->monthly_revenue_target) * 100))
@@ -92,19 +93,21 @@ class DashboardController extends Controller
 
         // FIELD AGENT DASHBOARD METRICS
         $myTodayVisits = FieldActivity::where('user_id', $user->id)
-            ->where('activity_date', $today)
+            ->whereDate('activity_date', $today)
             ->with('customer')
             ->orderBy('check_in_time', 'desc')
             ->get();
 
         $myMonthOnboardedCount = Customer::where('onboarded_by', $user->id)
-            ->whereBetween('onboarded_date', [$startOfMonth, $endOfMonth])
+            ->whereDate('onboarded_date', '>=', $startOfMonth)
+            ->whereDate('onboarded_date', '<=', $endOfMonth)
             ->count();
 
         $myTotalCustomers = Customer::where('onboarded_by', $user->id)->count();
 
         $myMonthRevenue = (float) Order::where('user_id', $user->id)
-            ->whereBetween('order_date', [$startOfMonth, $endOfMonth])
+            ->whereDate('order_date', '>=', $startOfMonth)
+            ->whereDate('order_date', '<=', $endOfMonth)
             ->sum('total_amount');
 
         $myRecentOnboards = Customer::where('onboarded_by', $user->id)

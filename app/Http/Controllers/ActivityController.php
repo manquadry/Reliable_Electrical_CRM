@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -144,8 +145,7 @@ class ActivityController extends Controller
         $activityType = $request->input('activity_type');
         $outcome = $request->input('outcome');
 
-        $query = FieldActivity::with(['user', 'customer'])
-            ->whereBetween('activity_date', [$startDate, $endDate]);
+        $query = $this->applyDateRange(FieldActivity::with(['user', 'customer']), 'activity_date', $startDate, $endDate);
 
         if ($agentId) {
             $query->where('user_id', $agentId);
@@ -224,23 +224,23 @@ class ActivityController extends Controller
 
         // Aggregations for the filter period
         $stats = [
-            'total_activities' => FieldActivity::whereBetween('activity_date', [$startDate, $endDate])
+            'total_activities' => $this->applyDateRange(FieldActivity::query(), 'activity_date', $startDate, $endDate)
                 ->when($agentId, fn($q) => $q->where('user_id', $agentId))
                 ->count(),
-            'store_visits' => FieldActivity::whereBetween('activity_date', [$startDate, $endDate])
+            'store_visits' => $this->applyDateRange(FieldActivity::query(), 'activity_date', $startDate, $endDate)
                 ->when($agentId, fn($q) => $q->where('user_id', $agentId))
                 ->where('activity_type', 'store_visit')
                 ->count(),
-            'new_onboardings' => Customer::whereBetween('onboarded_date', [$startDate, $endDate])
+            'new_onboardings' => $this->applyDateRange(Customer::query(), 'onboarded_date', $startDate, $endDate)
                 ->when($agentId, fn($q) => $q->where('onboarded_by', $agentId))
                 ->count(),
-            'orders_count' => Order::whereBetween('order_date', [$startDate, $endDate])
+            'orders_count' => $this->applyDateRange(Order::query(), 'order_date', $startDate, $endDate)
                 ->when($agentId, fn($q) => $q->where('user_id', $agentId))
                 ->count(),
-            'orders_total_amount' => Order::whereBetween('order_date', [$startDate, $endDate])
+            'orders_total_amount' => $this->applyDateRange(Order::query(), 'order_date', $startDate, $endDate)
                 ->when($agentId, fn($q) => $q->where('user_id', $agentId))
                 ->sum('total_amount'),
-            'collections_total' => Payment::whereBetween('payment_date', [$startDate, $endDate])
+            'collections_total' => $this->applyDateRange(Payment::query(), 'payment_date', $startDate, $endDate)
                 ->when($agentId, fn($q) => $q->where('user_id', $agentId))
                 ->sum('amount'),
         ];
@@ -250,22 +250,20 @@ class ActivityController extends Controller
             ->when($agentId, fn($q) => $q->where('id', $agentId))
             ->withCount([
                 'activities as period_visits_count' => function ($q) use ($startDate, $endDate) {
-                    $q->whereBetween('activity_date', [$startDate, $endDate]);
+                    $this->applyDateRange($q, 'activity_date', $startDate, $endDate);
                 },
                 'onboardedCustomers as period_onboard_count' => function ($q) use ($startDate, $endDate) {
-                    $q->whereBetween('onboarded_date', [$startDate, $endDate]);
+                    $this->applyDateRange($q, 'onboarded_date', $startDate, $endDate);
                 },
                 'orders as period_orders_count' => function ($q) use ($startDate, $endDate) {
-                    $q->whereBetween('order_date', [$startDate, $endDate]);
+                    $this->applyDateRange($q, 'order_date', $startDate, $endDate);
                 },
             ])
             ->get()
             ->map(function ($agent) use ($startDate, $endDate) {
-                $agent->period_revenue = (float) Order::where('user_id', $agent->id)
-                    ->whereBetween('order_date', [$startDate, $endDate])
+                $agent->period_revenue = (float) $this->applyDateRange(Order::where('user_id', $agent->id), 'order_date', $startDate, $endDate)
                     ->sum('total_amount');
-                $agent->period_collections = (float) Payment::where('user_id', $agent->id)
-                    ->whereBetween('payment_date', [$startDate, $endDate])
+                $agent->period_collections = (float) $this->applyDateRange(Payment::where('user_id', $agent->id), 'payment_date', $startDate, $endDate)
                     ->sum('amount');
                 return $agent;
             });
@@ -474,5 +472,14 @@ class ActivityController extends Controller
         });
 
         return response()->json($result);
+    }
+
+    /**
+     * Filter a date column inclusively across SQLite and SQL engines.
+     */
+    private function applyDateRange(Builder $query, string $column, string $startDate, string $endDate): Builder
+    {
+        return $query->whereDate($column, '>=', $startDate)
+            ->whereDate($column, '<=', $endDate);
     }
 }

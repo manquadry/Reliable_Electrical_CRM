@@ -309,7 +309,7 @@ class CrmDatabaseSeeder extends Seeder
                 'longitude' => 3.3912,
                 'credit_limit' => 0.00,
                 'payment_terms' => 'cash_on_delivery',
-                'onboarded_by' => $salesManager->id,
+                'onboarded_by' => $lead->id,
                 'onboarded_date' => Carbon::now()->subDays(60)->toDateString(),
                 'verification_status' => 'verified',
                 'status' => 'active',
